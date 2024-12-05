@@ -1,0 +1,28 @@
+
+header{
+    background-color: black;
+    height: 80px;
+}
+
+
+body{
+    padding: 0px;
+    margin: 0px;
+}
+
+#leftsidebar{
+    position:fixed;
+    width: 80px;
+    background-color: black;
+    height: 100%;
+    
+}
+
+#rightsidebar{
+    position:fixed;
+    width: 80px;
+    background-color: black;
+    height: 100%;
+    padding-right: 100px;
+    
+}
