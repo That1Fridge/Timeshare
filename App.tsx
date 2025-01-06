@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './style.css';
 import { View, Button, Text, StyleSheet, TextInput } from 'react-native';
+import ScaleBox from './components/scaleBox';
+
 
 
 
@@ -8,6 +10,8 @@ import { View, Button, Text, StyleSheet, TextInput } from 'react-native';
 export default function App() {
     const [showEntryOptions, setShowEntryOptions] = useState(false);
     const [showAmount, setShowAmount] = useState(false);
+    const [showRange, setShowRange] = useState(false);
+
 
     return (
 
@@ -17,16 +21,15 @@ export default function App() {
             </View>
 
             <View style={style.leftsidebar}>
-                <Text>Left</Text>
             </View>
 
             <View style={style.centre}>
                 {EntryOptions()}
                 {Amount()}
+                {Range()}
             </View>
 
-            <View id="rightsidebar">
-            </View>
+    
         </View>
     )
 
@@ -36,14 +39,20 @@ export default function App() {
         if (showAmount) {
             return(null)
         } else 
+        
+        if (showRange) {
+            return(null)
+        } else
       
         if (showEntryOptions) {
 
             return (
                 <View id='options' style={style.Options}>
                     <View style={style.SelectChoice}>
+                    <View id='amount' style={style.Amount}>
                     <Button title="Amount" onPress={() => (setShowAmount(true))} />
-                    <Button title="Range" onPress={() => alert('Hello World')} />
+                    </View>
+                    <Button title="Range" onPress={() => (setShowRange(true))} />
                     </View>
                     <Button title="Cancel" onPress={() => alert('Hello World')} />
                 </View>
@@ -70,6 +79,15 @@ export default function App() {
         )
     }
     };
+
+    function Range() {
+        if(showRange) {
+            console.log('Range');
+        return (
+            <ScaleBox />
+        )
+    }
+};
 
 
 
@@ -100,38 +118,54 @@ const style = StyleSheet.create({
 
     centre: {
         paddingTop: '0%',
-        marginTop: '20%',
-        marginLeft: '47%',
+        marginTop: '2.4%',
+        marginLeft: '10%',
+        marginRight: '0%',
+        height: '100%',
+        width: '90%',
         flexGrow: 1,
         position: 'absolute',
+        backgroundColor: 'green',
     },
 
+    Button:{
+        width:'300%',
+        flex: 1,
+        justifyContent: 'space-between',
+        padding: '20%',
+        paddingBlock: '20%',
+        borderRadius: 0,
+        },
 
-    Button: {
-        marginTop: '0%',
-        margin: '0%',
+        Amount: {
+        marginLeft: '25%',
+        borderRadius: 0,
 
-    },
+        },
 
     Options: {
         flexDirection: 'column',
         marginRight: '0%',
+        marginLeft: '35%',
+        justifyContent: 'space-between',
+        width: '20%',
+        
+
     },
 
     Entry: {
-        marginLeft: '30%',
-        width: '130%',  
+        marginLeft: '35%',
+        width: '20%',  
         fontSize: 3000, 
     },
     
     SelectChoice: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        flex: 1,
+        
     },
 
     
-
-
     Text: {
         fontSize: 200,
         color: 'rgb(255, 255, 255)',
