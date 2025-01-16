@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, useAnimatedValue, Animated, ViewStyle, Dimensions,PixelRatio} from 'react-native';
-import React, { useEffect, PropsWithChildren } from 'react';
+import React, { useEffect, PropsWithChildren, useState } from 'react';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import LabelTransformer from '../.expo/functions/valueToTime';
 
@@ -35,25 +35,26 @@ const FadeInView: React.FC<PropsWithChildren<{style: ViewStyle}>> = props => {
     const sliderWidth = (screenWidth * 0.5) - (76.5 * pixelRatio); // 50% of screen width
 
 
-    const timeTransformer = (value) => {
+    function timeTransformer(value: number) {
         let minsSecs; 
-        if (value % 1!= 0) {
-            //if the value is not a whole num, get the decimal part and convert it to mins/secs
-            minsSecs =  ":" + (value- Math.floor(value))*100;
-        }
-    
-        if (value === 0){
-            return "12:" +minsSecs + " AM" //if the value is 0, return 12:00 AM
-        }
-        if (value > 12) {
-            //if the value is greater than 12, subtract 12 and add PM
-            //if the value is not a whole num, remove decimal to put it in string minsSecs
-            return (value - 12) - (value%(Math.floor(value)))+ minsSecs + " PM";
-        } else if (value < 12) {
-            return value + minsSecs + " AM"; //if the value is less than 12, return the value + minsSecs + AM
-        } else if (value === 12) {
-            return "12:" + minsSecs +" PM";//if the value is 12, return 12:00 PM
-        }
+
+      let hours = ( Math.floor(value / (1000 * 60 * 60)));
+     let minutes = (Math.floor((value % (1000 * 60 * 60)) / (1000 * 60)));
+     let seconds = (Math.floor((value % (1000 * 60)) / 1000));
+     let timeString = "";
+     if(hours===0){
+         timeString = "12:" + minutes + ":" +  seconds + "AM";
+
+     } else if(hours <12 ){
+         timeString = hours + ":" + minutes + ":" +  seconds + "AM";
+     } else if (hours === 12){
+         timeString = hours + ":" + minutes + ":" +  seconds + "PM";
+     }
+     else if (hours > 12){
+         timeString = hours-12 + ":" + minutes + ":" +  seconds + "PM";
+     }
+
+        return timeString;
         }
     
     
@@ -65,13 +66,13 @@ export default function ScaleBox() {
 <FadeInView style ={style.SliderContainer}>
         <View style={style.Slider}>
             <MultiSlider
-                min={0.5}
-                max={24}
-                values={[0, 24]}
+                min={0}
+                max={86400000}
+                values={[0, 86400000]}
                 onValuesChange={(values) => console.log(values)}
                 sliderLength={sliderWidth}
                 enableLabel={true}
-                step={0.06}
+                step={10000}
                 customLabel={LabelTransformer(timeTransformer)}
                 
             />

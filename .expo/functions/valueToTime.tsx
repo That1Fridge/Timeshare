@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text, View , StyleSheet, Dimensions} from "react-native";
 
 function LabelProp(props)
@@ -20,6 +20,8 @@ function LabelProp(props)
 
 
 export default function LabelTransformer(textTransformer: (value: number) => string){
+    
+            
     return function (props) {
 
         const {
@@ -29,7 +31,8 @@ export default function LabelTransformer(textTransformer: (value: number) => str
             twoMarkerLeftPosition,
         } = props;
 
-        return (            <View>
+        return (            
+        <View>
             <LabelProp
                 position={oneMarkerLeftPosition}
                 value={textTransformer(oneMarkerValue)}

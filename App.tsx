@@ -73,8 +73,12 @@ export default function App() {
         if(showAmount) {
             console.log('Amount');
         return (
-            <View id='options' style={style.Options}>
-                <TextInput placeholder="Amount" />
+            <View style={style.Options}>
+            <View style={style.amount}>
+                <TextInput placeholder="hrs" />
+                <TextInput placeholder="mins" />
+                <TextInput placeholder="secs" />
+                </View>
             </View>
         )
     }
@@ -95,6 +99,15 @@ export default function App() {
 
 
 const style = StyleSheet.create({
+
+    amount:{
+        width:'21%',
+        marginLeft:'45%',
+        padding:2,
+        borderColor:'white',
+        borderWidth:2,
+        flexDirection:'row'
+    },
 
     header: {
         backgroundColor: 'rgb(176, 37, 37)',
