@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './style.css';
 import { View, Button, Text, StyleSheet, TextInput } from 'react-native';
 import ScaleBox from './components/scaleBox';
+import { User } from './dbservice';
 
 
 
@@ -29,7 +30,7 @@ export default function App() {
                 {Range()}
             </View>
 
-    
+
         </View>
     )
 
@@ -37,61 +38,70 @@ export default function App() {
     function EntryOptions() {
 
         if (showAmount) {
-            return(null)
-        } else 
-        
-        if (showRange) {
-            return(null)
+            return (null)
         } else
-      
-        if (showEntryOptions) {
 
-            return (
-                <View id='options' style={style.Options}>
-                    <View style={style.SelectChoice}>
-                    <View id='amount' style={style.Amount}>
-                    <Button title="Amount" onPress={() => (setShowAmount(true))} />
-                    </View>
-                    <Button title="Range" onPress={() => (setShowRange(true))} />
-                    </View>
-                    <Button title="Cancel" onPress={() => alert('Hello World')} />
-                </View>
-            )
-        }
+            if (showRange) {
+                return (null)
+            } else
 
-        else {
-            return (
-                <View id='entry' style={style.Entry}>
-                    <Button title="Entry" onPress={() => (setShowEntryOptions(true))} />
-                </View>)
-        }
+                if (showEntryOptions) {
+
+                    return (
+                        <View id='options' style={style.Options}>
+                            <View style={style.SelectChoice}>
+                                <View id='amount' style={style.Amount}>
+                                    <Button title="Amount" onPress={() => (setShowAmount(true))} />
+                                </View>
+                                <Button title="Range" onPress={() => (setShowRange(true))} />
+                            </View>
+                            <Button title="Cancel" onPress={() => alert('Hello World')} />
+                        </View>
+                    )
+                }
+
+                else {
+                    return (
+                        <View id='entry' style={style.Entry}>
+                            <Button title="Entry" onPress={() => (setShowEntryOptions(true))} />
+                        </View>)
+                }
 
     };
 
 
     function Amount() {
-        if(showAmount) {
+        if (showAmount) {
             console.log('Amount');
-        return (
-            <View style={style.Options}>
-            <View style={style.amount}>
-                <TextInput placeholder="hrs" />
-                <TextInput placeholder="mins" />
-                <TextInput placeholder="secs" />
+            return (
+                <View style={style.Options}>
+                    <View style={style.amount}>
+                        <TextInput style={style.input} placeholder="  hrs" />
+                        <Text >:</Text>
+                        <TextInput style={style.input} placeholder="mins" />
+                        <Text >:</Text>
+                        <TextInput style={style.input} placeholder="secs" />
+                    </View>
+                    <Button title="Submit" onPress={() => (Submit())} />
                 </View>
-            </View>
-        )
-    }
+            )
+        }
     };
 
     function Range() {
-        if(showRange) {
+        if (showRange) {
             console.log('Range');
-        return (
-            <ScaleBox />
-        )
-    }
-};
+            return (
+                <ScaleBox />
+            )
+        }
+    };
+
+
+    function Submit() {
+        User();
+        // console.log('s');
+    };
 
 
 
@@ -100,13 +110,22 @@ export default function App() {
 
 const style = StyleSheet.create({
 
-    amount:{
-        width:'21%',
-        marginLeft:'45%',
-        padding:2,
-        borderColor:'white',
-        borderWidth:2,
-        flexDirection:'row'
+
+    input: {
+        width: '70%',
+        margin: 0,
+        padding: 1,
+        marginRight: 0,
+
+    },
+
+    amount: {
+        width: '40%',
+        marginLeft: '30%',
+        padding: 0,
+        borderColor: 'white',
+        borderWidth: 2,
+        flexDirection: 'row'
     },
 
     header: {
@@ -141,20 +160,20 @@ const style = StyleSheet.create({
         backgroundColor: 'green',
     },
 
-    Button:{
-        width:'300%',
+    Button: {
+        width: '300%',
         flex: 1,
         justifyContent: 'space-between',
         padding: '20%',
         paddingBlock: '20%',
         borderRadius: 0,
-        },
+    },
 
-        Amount: {
+    Amount: {
         marginLeft: '25%',
         borderRadius: 0,
 
-        },
+    },
 
     Options: {
         flexDirection: 'column',
@@ -162,23 +181,23 @@ const style = StyleSheet.create({
         marginLeft: '35%',
         justifyContent: 'space-between',
         width: '20%',
-        
+
 
     },
 
     Entry: {
         marginLeft: '35%',
-        width: '20%',  
-        fontSize: 3000, 
+        width: '20%',
+        fontSize: 3000,
     },
-    
+
     SelectChoice: {
         flexDirection: 'row',
         flex: 1,
-        
+
     },
 
-    
+
     Text: {
         fontSize: 200,
         color: 'rgb(255, 255, 255)',

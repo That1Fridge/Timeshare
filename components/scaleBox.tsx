@@ -36,12 +36,12 @@ const FadeInView: React.FC<PropsWithChildren<{style: ViewStyle}>> = props => {
 
 
     function timeTransformer(value: number) {
-        let minsSecs; 
 
-      let hours = ( Math.floor(value / (1000 * 60 * 60)));
+     let hours = ( Math.floor(value / (1000 * 60 * 60)));
      let minutes = (Math.floor((value % (1000 * 60 * 60)) / (1000 * 60)));
      let seconds = (Math.floor((value % (1000 * 60)) / 1000));
      let timeString = "";
+
      if(hours===0){
          timeString = "12:" + minutes + ":" +  seconds + "AM";
 
