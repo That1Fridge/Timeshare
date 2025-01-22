@@ -1,22 +1,32 @@
 
+CREATE TABLE
+    IF NOT EXISTS UserName(
+        userId INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        email TEXT NOT NULL,
+        pass TEXT NOT NULL
+    );
+
+
+CREATE TABLE
+    IF NOT EXISTS Day(
+        dayId INTEGER PRIMARY KEY AUTOINCREMENT,
+        timeLeft INTEGER NOT NULL,
+    );
+
+
 CREATE TABLE 
-    IF NOT EXISTS Entry(
+    IF NOT EXISTS Log(
         entryId INTEGER PRIMARY KEY AUTOINCREMENT,
         total_time INTEGER NOT NULL,
         start_time DATETIME,
         end_time DATETIME,
         dayId INTEGER,
-        FOREIGN KEY (dayId) REFERENCES Entry(dayId)
+        FOREIGN KEY (dayId) REFERENCES Day(dayId)
 
     );
 
-CREATE TABLE
-    IF NOT EXISTS User(
-        userId INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        email TEXT NOT NULL,
-        password TEXT NOT NULL
-    );
+
 
 CREATE TABLE
     IF NOT EXISTS UserEntry(
@@ -28,9 +38,4 @@ CREATE TABLE
     )
 
 
-CREATE TABLE
-    IF NOT EXISTS Day(
-        dayId INTEGER PRIMARY KEY AUTOINCREMENT,
-        timeLeft INTEGER NOT NULL,
-    )
 
