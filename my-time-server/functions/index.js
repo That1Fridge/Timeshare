@@ -26,6 +26,9 @@ const config = {
   },
 };
 
+const cors = require('cors')({ origin: true });
+
+
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
@@ -33,24 +36,32 @@ exports.helloWorld = onRequest(async (request, response) => {
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 const sql = require("mssql");
+cors(request, response, async () => {
+
 
   try {
     const pool = await sql.connect(config);
-    const result = await pool.request().query(`IF OBJECT_ID('dbo.UserName', 'U') IS NULL
-BEGIN
-    CREATE TABLE UserName (
-        userId INT IDENTITY(1,1) PRIMARY KEY,
-        username NVARCHAR(255) NOT NULL,
-        email NVARCHAR(255) NOT NULL,
-        pass NVARCHAR(255) NOT NULL
-    );
-END;
-`);
+//     request.sql = `IF OBJECT_ID('dbo.UserName', 'U') IS NULL
+// BEGIN
+//     CREATE TABLE UserName (
+//         userId INT IDENTITY(1,1) PRIMARY KEY,
+//         username NVARCHAR(255) NOT NULL,
+//         email NVARCHAR(255) NOT NULL,
+//         pass NVARCHAR(255) NOT NULL
+//     );
+// END;
+// `;
+const query = request.body.sql; // Ensure the query is taken from the request body
+    if (!query) {
+      throw new Error("No SQL query provided in the request body");
+    }
+    const result = await pool.request().query(query);
     const string = "Query executed successfully result:";
     response.send(string + JSON.stringify(result.recordset));
   } catch (err) {
     response.send("Error: TWO NUM TWO " + err);
   }
+});
 });
 
 // const functions = require('firebase-functions');

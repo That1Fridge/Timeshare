@@ -15,11 +15,11 @@ import { supabase } from './supabase';
 //       supabase.auth.stopAutoRefresh()
 //     }
 //   })
-  
 
 
 
-export function Entry(){
+
+export function Entry() {
     connectAndQuery(`CREATE TABLE 
     IF NOT EXISTS Entry(
         entryId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,15 +33,16 @@ export function Entry(){
 };
 
 
-export function User(){
-    let query = `CREATE TABLE
-    IF NOT EXISTS User(
-        userId INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        email TEXT NOT NULL,
-        password TEXT NOT NULL
-    );`
-    console.log("a");   
+export function User() {
+    let query = `IF OBJECT_ID('dbo.UserName', 'U') IS NULL BEGIN
+    CREATE TABLE UserName (
+        userId INT IDENTITY(1,1) PRIMARY KEY,
+        username NVARCHAR(255) NOT NULL,
+        email NVARCHAR(255) NOT NULL,
+        pass NVARCHAR(255) NOT NULL
+    );
+END;`
+    console.log("a");
     connectAndQuery(query);
 };
 
@@ -53,7 +54,7 @@ export function User(){
 //         email TEXT NOT NULL,
 //         password TEXT NOT NULL
 //     );`
-//     console.log("a");   
+//     console.log("a");
 //     connectAndQuery(query);
 // };
 

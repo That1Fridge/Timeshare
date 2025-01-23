@@ -6,12 +6,13 @@ global.Buffer = Buffer;
 
 export async function connectAndQuery(query: string) {
     console.log('Executing query:', query);
-    try {
-        const response = await axios.post('https://timeshare-d5a98.web.app/index', {
-            sql: query,
-        });
-        console.log('Response from backend:', response.data);
-    } catch (err) {
-        console.error('Error executing query:', err.message);
+    const data = {
+        sql: query,
     }
+   
+        const response = await axios.post('https://helloworld-v2mwnwfqxa-uc.a.run.app/',data).then((response) => {
+            console.log('Response from backend:', response.data);
+        }).  catch((error) => {
+            console.error('Error:', error);
+        });
 }
