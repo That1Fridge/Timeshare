@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './style.css';
 import { View, Button, Text, StyleSheet, TextInput } from 'react-native';
 import ScaleBox, {   returnValues}  from './components/scaleBox';
-import { NextDay, User } from './dbservice';
+import { Day, NextDay, User } from './dbservice';
 import { connectAndQuery } from './dbconnection';
 import { useRangeReturn } from './components/sliderStore';
 
@@ -158,7 +158,7 @@ export default function App() {
 
             if(submit){
                 console.log('Submitfunction');
-
+                Day();
                 connectAndQuery(`SELECT TOP 1 daydate
            FROM Day
            ORDER BY daydate DESC;`).then((result) => {
@@ -183,10 +183,10 @@ export default function App() {
         });
 
 
-        
+        NextDay(behind,total, currDate, value, showRange);
+
             }
-            NextDay(behind,total, currDate, value, showRange);
-        // User();
+            
     };
 
 

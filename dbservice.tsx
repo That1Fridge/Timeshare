@@ -19,17 +19,21 @@ import { useEffect, useState } from 'react';
 
 
 
-export function Entry() {
-    connectAndQuery(`CREATE TABLE 
-    IF NOT EXISTS Entry(
-        entryId INTEGER PRIMARY KEY AUTOINCREMENT,
-        total_time INTEGER NOT NULL,
+export function Log() {
+    connectAndQuery(`IF OBJECT_ID('dbo.Log', 'U') IS NULL
+BEGIN
+    CREATE TABLE Log (
+        entryId INT IDENTITY(1,1) PRIMARY KEY,
+        total_time INT NOT NULL,
         start_time DATETIME,
         end_time DATETIME,
-        dayId INTEGER,
-        FOREIGN KEY (dayId) REFERENCES Entry(dayId)
+        dayId INT,
+        FOREIGN KEY (dayId) REFERENCES Day(dayId)
+    );
+END;`);
 
-    );`);
+connectAndQuery(``);
+
 };
 
 
@@ -82,7 +86,6 @@ END; `);
 
 
 export function NextDay(behind: boolean, total: number, currDate: string, value: number, showRange: boolean){
-
     if(behind){
         console.log('in Behind');
         connectAndQuery(`INSERT INTO Day DEFAULT VALUES;`);
@@ -95,6 +98,11 @@ export function NextDay(behind: boolean, total: number, currDate: string, value:
         console.log('not in behindConvert to millseconds');
         connectAndQuery(`UPDATE Day SET timeLeft = ${86400000-total} WHERE daydate = '${currDate}';`);
     }
+
+};
+
+
+export function Entry(){
 
 };
 
