@@ -35,8 +35,8 @@ END;
 IF OBJECT_ID('dbo.Day', 'U') IS NULL
 BEGIN
     CREATE TABLE Day (
-        dayId INT IDENTITY(1,1) PRIMARY KEY,
-        timeLeft INT NOT NULL
+        daydate DATE DEFAULT CAST(GETDATE() AS DATE) PRIMARY KEY,
+        timeLeft INT NOT NULL DEFAULT 86400000,
     );
 END;
 
@@ -52,6 +52,11 @@ BEGIN
     );
 END;
 
+BEGIN
+    INSERT INTO Log (total_time, start_time, end_time, dayId)
+    VALUES (0, GETDATE(), GETDATE(), 1);
+END;
+
 
 IF OBJECT_ID('dbo.UserEntry', 'U') IS NULL
 BEGIN
@@ -63,3 +68,6 @@ BEGIN
         FOREIGN KEY (entryId) REFERENCES Log(entryId)
     );
 END;
+
+
+INSERT INTO Day DEFAULT VALUES;

@@ -1,8 +1,10 @@
 import { StyleSheet, View, Text, useAnimatedValue, Animated, ViewStyle, Dimensions,PixelRatio} from 'react-native';
-import React, { useEffect, PropsWithChildren, useState } from 'react';
+import React, { useEffect, PropsWithChildren, useState, useCallback, useRef } from 'react';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import LabelTransformer from '../.expo/functions/valueToTime';
-
+import { color } from '@rneui/themed/dist/config';
+// import { range } from './App';
+import { useRangeReturn, setSliderValues } from './sliderStore.js'; 
 
 
   
@@ -58,18 +60,65 @@ const FadeInView: React.FC<PropsWithChildren<{style: ViewStyle}>> = props => {
         }
     
     
+  // const [range, setRange] = useState(0);
 
 
 export default function ScaleBox() {
+//   const [range, setRange] = useState(0);
+//     return (
+// <FadeInView style ={style.SliderContainer}>
+//         <View style={style.Slider}>
+//             <MultiSlider
+//                 min={0}
+//                 max={86400000}
+//                 values={[0, 86400000]}
+//                 onValuesChange={(values) => console.log(values[1]-values[0])}
+//                 sliderLength={sliderWidth}
+//                 enableLabel={true}
+//                 step={10000}
+//                 customLabel={LabelTransformer(timeTransformer)}
+                
+//             />
+//         </View>
 
-    return (
+//                 </FadeInView>
+
+//     );
+    const {scale} = returnValues();
+
+    return scale;
+
+};
+
+
+// export const useRangeReturn = () => {
+
+
+//     // return range.current;
+//     // const {range} = returnValues();
+//     // console.log("range cool", range);
+
+//     // return range;
+// };
+
+// const range = useRef(0);
+
+export function returnValues() {
+
+  const valuechanges = (values) => {
+    setSliderValues(values[1]-values[0])
+    // range.current = values[1]-values[0];
+  }
+
+  const scale = (
+
 <FadeInView style ={style.SliderContainer}>
         <View style={style.Slider}>
             <MultiSlider
                 min={0}
                 max={86400000}
                 values={[0, 86400000]}
-                onValuesChange={(values) => console.log(values)}
+                onValuesChange={valuechanges}
                 sliderLength={sliderWidth}
                 enableLabel={true}
                 step={10000}
@@ -80,11 +129,20 @@ export default function ScaleBox() {
 
                 </FadeInView>
 
-    );
+  );
 
+  return {scale};
 
-};
+}
 
+function setReturn(setRange: any, range: any) {
+  // const [range, setRange] = useState(0);
+
+  useEffect(() => {
+      console.log('Range:', range);
+    setRange(range);
+      }, [range]);
+}
 
 const style = StyleSheet.create({
 
@@ -103,8 +161,8 @@ const style = StyleSheet.create({
         marginTop: '10%',
         borderRadius: 0,
         borderColor: 'black',
-        borderWidth: 10,
+        borderWidth: 0,
         position: 'absolute',
-        backgroundColor: '#2C4870',
     },
 });
+

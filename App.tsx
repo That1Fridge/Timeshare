@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './style.css';
 import { View, Button, Text, StyleSheet, TextInput } from 'react-native';
-import ScaleBox from './components/scaleBox';
-import { User } from './dbservice';
-
+import ScaleBox, {   returnValues}  from './components/scaleBox';
+import { NextDay, User } from './dbservice';
+import { connectAndQuery } from './dbconnection';
+import { useRangeReturn } from './components/sliderStore';
 
 
 
@@ -12,7 +13,18 @@ export default function App() {
     const [showEntryOptions, setShowEntryOptions] = useState(false);
     const [showAmount, setShowAmount] = useState(false);
     const [showRange, setShowRange] = useState(false);
+    const [submit, setSubmit] = useState(false);   
+    const [currDate, setCurrDate] = useState("");
+    const [behind, setBehind] = useState(false);
+    const [hrs, setHrs] = useState(0);
+    const [mins, setMins] = useState(0);
+    const [secs, setSecs] = useState(0);
+    const [total, setTotal] = useState(0);
+    const [value, setValue] = useState(0);
 
+
+
+    Submitfunction();
 
     return (
 
@@ -27,7 +39,8 @@ export default function App() {
             <View style={style.centre}>
                 {EntryOptions()}
                 {Amount()}
-                {Range()}
+                {/* {Range()} */}
+                {RangeSubmit()}
             </View>
 
 
@@ -76,11 +89,11 @@ export default function App() {
             return (
                 <View style={style.Options}>
                     <View style={style.amount}>
-                        <TextInput style={style.input} placeholder="  hrs" />
+                        <TextInput style={style.input} placeholder="  hrs" onChangeText={newText => setHrs(parseInt(newText))}/>
                         <Text >:</Text>
-                        <TextInput style={style.input} placeholder="mins" />
+                        <TextInput style={style.input} placeholder="mins" onChangeText={newText => setMins(parseInt(newText))} />
                         <Text >:</Text>
-                        <TextInput style={style.input} placeholder="secs" />
+                        <TextInput style={style.input} placeholder="secs" onChangeText={newText => setSecs(parseInt(newText))} />
                     </View>
                     <Button title="Submit" onPress={() => (Submit())} />
                 </View>
@@ -93,19 +106,93 @@ export default function App() {
             console.log('Range');
             return (
                 <ScaleBox />
+                
             )
         }
     };
 
+    function RangeSubmit() {
+        if (showRange) {
+            return (
+                <View style={style.Options}>
+                <View style={style.Range}>
+                    {Range()}
+                </View>
+                <Button title="Submit" onPress={() => (Submit())} />
+                 </View>
+            )
+        }
+    };
 
     function Submit() {
-        User();
-        // console.log('s');
+        setTotal((hrs * 3600000) + (mins * 60000) + (secs * 1000));
+        if(showRange){
+        //     console.log("TESTTT 1001");
+        // console.log('range try', useRangeReturn());
+        // // const {range} = returnValues();
+        // // console.log("PLEASE WORK : ", range);
+        setValue(useRangeReturn());
+        
+        }
+        console.log('total', total);
+        setSubmit(true);
+    }
+
+
+    function Submitfunction() {
+
+        useEffect(() => {
+                
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Ensure 2-digit month
+                const date = now.getDate().toString().padStart(2, "0"); // Ensure 2-digit date
+                  console.log('date ' + `${year}-${month}-${date}`);      
+                  setCurrDate(`${year}-${month}-${date}`);
+
+
+                //   setBehind(false); 
+
+        },[]);
+
+
+            if(submit){
+                console.log('Submitfunction');
+
+                connectAndQuery(`SELECT TOP 1 daydate
+           FROM Day
+           ORDER BY daydate DESC;`).then((result) => {
+
+            let maxDate = result[0].daydate.toString().substring(0,10);
+            console.log('begin behind', behind,'date1 ', currDate, 'date2', maxDate);
+            if(parseInt(maxDate.substring(0,4)) < parseInt(currDate.substring(0,4))){
+                setBehind(true);
+                console.log('in behind', behind);
+            }
+
+            if(parseInt(maxDate.substring(5,7)) < parseInt(currDate.substring(5,7))){
+                    setBehind(true);
+                    console.log('in behind', behind);
+                }
+             if(parseInt(maxDate.substring(8,10)) < parseInt(currDate.substring(8,10))){
+                        setBehind(true);
+                        console.log('in behind 3', behind);
+             }
+             setSubmit(false);
+
+        });
+
+
+        
+            }
+            NextDay(behind,total, currDate, value, showRange);
+        // User();
     };
 
 
 
 };
+
 
 
 const style = StyleSheet.create({
@@ -183,6 +270,16 @@ const style = StyleSheet.create({
         width: '20%',
 
 
+    },
+
+    Range: {
+        flexDirection: 'column',
+        marginRight: '70%',
+        marginTop: '10%',
+        marginLeft: '-80%',
+        marginBottom: '30%',
+        justifyContent: 'space-between',
+        width: '20%',
     },
 
     Entry: {

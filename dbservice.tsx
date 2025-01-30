@@ -1,7 +1,7 @@
 import { AppState } from 'react-native';
 import { connectAndQuery } from './dbconnection';
 import { supabase } from './supabase';
-
+import { useEffect, useState } from 'react';
 
 
 // // Tells Supabase Auth to continuously refresh the session automatically if
@@ -69,10 +69,32 @@ END;`
 //     )`);
 // };
 
-// export function Day(){
-//     connectAndQuery(`CREATE TABLE
-//     IF NOT EXISTS Day(
-//         dayId INTEGER PRIMARY KEY AUTOINCREMENT,
-//         timeLeft INTEGER NOT NULL,
-//     )`);
-// };
+export function Day(){
+    connectAndQuery(`IF OBJECT_ID('dbo.Day', 'U') IS NULL
+BEGIN
+    CREATE TABLE Day (
+        dayId INT IDENTITY(1,1) PRIMARY KEY,
+        timeLeft INT NOT NULL DEFAULT 86400000,
+        daydate DATE NOT NULL
+    );
+END; `);
+};
+
+
+export function NextDay(behind: boolean, total: number, currDate: string, value: number, showRange: boolean){
+
+    if(behind){
+        console.log('in Behind');
+        connectAndQuery(`INSERT INTO Day DEFAULT VALUES;`);
+    }
+    else if(showRange){
+        console.log('from range value',value);
+        connectAndQuery(`UPDATE Day SET timeLeft = ${86400000-value} WHERE daydate = '${currDate}';`);
+    }
+    else {
+        console.log('not in behindConvert to millseconds');
+        connectAndQuery(`UPDATE Day SET timeLeft = ${86400000-total} WHERE daydate = '${currDate}';`);
+    }
+
+};
+
