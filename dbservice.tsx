@@ -19,20 +19,27 @@ import { useEffect, useState } from 'react';
 
 
 
-export function Log() {
+export function Log(total: number,value: number, showRange: boolean, start_time:string ,end_time: string, date:string) {
     connectAndQuery(`IF OBJECT_ID('dbo.Log', 'U') IS NULL
 BEGIN
     CREATE TABLE Log (
         entryId INT IDENTITY(1,1) PRIMARY KEY,
         total_time INT NOT NULL,
-        start_time DATETIME,
-        end_time DATETIME,
-        dayId INT,
-        FOREIGN KEY (dayId) REFERENCES Day(dayId)
+        start_time TIME,
+        end_time TIME,
+        daydate DATE NOT NULL,
+        FOREIGN KEY (daydate) REFERENCES Day(daydate)
     );
 END;`);
 
-connectAndQuery(``);
+if(showRange){
+connectAndQuery(`INSERT INTO Log (total_time, start_time, end_time, daydate) 
+    VALUES (${value}, '${start_time}', '${end_time}', '${date}');`);
+}else{
+    connectAndQuery(`INSERT INTO Log (total_time, daydate) 
+    VALUES (${total}, '${date}');`);
+
+}
 
 };
 
@@ -77,18 +84,20 @@ export function Day(){
     connectAndQuery(`IF OBJECT_ID('dbo.Day', 'U') IS NULL
 BEGIN
     CREATE TABLE Day (
-        dayId INT IDENTITY(1,1) PRIMARY KEY,
-        timeLeft INT NOT NULL DEFAULT 86400000,
-        daydate DATE NOT NULL
+        daydate DATE  PRIMARY KEY,
+        timeLeft INT NOT NULL DEFAULT 86400000
     );
 END; `);
 };
 
 
 export function NextDay(behind: boolean, total: number, currDate: string, value: number, showRange: boolean){
-    if(behind){
+    if(behind&&showRange){
         console.log('in Behind');
-        connectAndQuery(`INSERT INTO Day DEFAULT VALUES;`);
+        connectAndQuery(`INSERT INTO Day(daydate,timeLeft) VALUES ('${currDate}',${86400000-value});`);
+    }else if(behind){
+        console.log('in Behind');
+        connectAndQuery(`INSERT INTO Day(daydate,timeLeft) VALUES ('${currDate}',${86400000-total});`);
     }
     else if(showRange){
         console.log('from range value',value);

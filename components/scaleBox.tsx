@@ -4,7 +4,8 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import LabelTransformer from '../.expo/functions/valueToTime';
 import { color } from '@rneui/themed/dist/config';
 // import { range } from './App';
-import { useRangeReturn, setSliderValues } from './sliderStore.js'; 
+import { useRangeReturn, setSliderValues, setSliderBetween } from '../functions/sliderStore.js'; 
+import {timeTransformer} from '../functions/timeConverter';
 
 
   
@@ -37,27 +38,6 @@ const FadeInView: React.FC<PropsWithChildren<{style: ViewStyle}>> = props => {
     const sliderWidth = (screenWidth * 0.5) - (76.5 * pixelRatio); // 50% of screen width
 
 
-    function timeTransformer(value: number) {
-
-     let hours = ( Math.floor(value / (1000 * 60 * 60)));
-     let minutes = (Math.floor((value % (1000 * 60 * 60)) / (1000 * 60)));
-     let seconds = (Math.floor((value % (1000 * 60)) / 1000));
-     let timeString = "";
-
-     if(hours===0){
-         timeString = "12:" + minutes + ":" +  seconds + "AM";
-
-     } else if(hours <12 ){
-         timeString = hours + ":" + minutes + ":" +  seconds + "AM";
-     } else if (hours === 12){
-         timeString = hours + ":" + minutes + ":" +  seconds + "PM";
-     }
-     else if (hours > 12){
-         timeString = hours-12 + ":" + minutes + ":" +  seconds + "PM";
-     }
-
-        return timeString;
-        }
     
     
   // const [range, setRange] = useState(0);
@@ -106,8 +86,9 @@ export default function ScaleBox() {
 export function returnValues() {
 
   const valuechanges = (values) => {
-    setSliderValues(values[1]-values[0])
+    setSliderValues(values[1]-values[0]);
     // range.current = values[1]-values[0];
+    setSliderBetween(values);
   }
 
   const scale = (

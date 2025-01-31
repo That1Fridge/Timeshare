@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import './style.css';
 import { View, Button, Text, StyleSheet, TextInput } from 'react-native';
 import ScaleBox, {   returnValues}  from './components/scaleBox';
-import { Day, NextDay, User } from './dbservice';
+import { Day, Log, NextDay, User } from './dbservice';
 import { connectAndQuery } from './dbconnection';
-import { useRangeReturn } from './components/sliderStore';
+import { useRangeReturn, useSlideBetweenReturn } from './functions/sliderStore';
+import { timeTransformer, twentyfourConverter } from './functions/timeConverter';
 
 
 
@@ -15,12 +16,14 @@ export default function App() {
     const [showRange, setShowRange] = useState(false);
     const [submit, setSubmit] = useState(false);   
     const [currDate, setCurrDate] = useState("");
-    const [behind, setBehind] = useState(false);
+    const [behind, setBehind] = useState(null);
     const [hrs, setHrs] = useState(0);
     const [mins, setMins] = useState(0);
     const [secs, setSecs] = useState(0);
     const [total, setTotal] = useState(0);
     const [value, setValue] = useState(0);
+    const [start_time, setStartTime] = useState("");
+    const [end_time, setEndTime] = useState("");
 
 
 
@@ -132,7 +135,8 @@ export default function App() {
         // // const {range} = returnValues();
         // // console.log("PLEASE WORK : ", range);
         setValue(useRangeReturn());
-        
+        setStartTime(twentyfourConverter(useSlideBetweenReturn()[0]));
+        setEndTime(twentyfourConverter(useSlideBetweenReturn()[1]));
         }
         console.log('total', total);
         setSubmit(true);
@@ -155,7 +159,7 @@ export default function App() {
 
         },[]);
 
-
+        useEffect(()=>{
             if(submit){
                 console.log('Submitfunction');
                 Day();
@@ -165,27 +169,32 @@ export default function App() {
 
             let maxDate = result[0].daydate.toString().substring(0,10);
             console.log('begin behind', behind,'date1 ', currDate, 'date2', maxDate);
-            if(parseInt(maxDate.substring(0,4)) < parseInt(currDate.substring(0,4))){
+            if(parseInt(maxDate.substring(0,4)) < parseInt(currDate.substring(0,4))||
+            parseInt(maxDate.substring(5,7)) < parseInt(currDate.substring(5,7))||
+            parseInt(maxDate.substring(8,10)) < parseInt(currDate.substring(8,10))  ){
                 setBehind(true);
                 console.log('in behind', behind);
+            }else{
+                setBehind(false);
             }
-
-            if(parseInt(maxDate.substring(5,7)) < parseInt(currDate.substring(5,7))){
-                    setBehind(true);
-                    console.log('in behind', behind);
-                }
-             if(parseInt(maxDate.substring(8,10)) < parseInt(currDate.substring(8,10))){
-                        setBehind(true);
-                        console.log('in behind 3', behind);
-             }
-             setSubmit(false);
 
         });
-
-
-        NextDay(behind,total, currDate, value, showRange);
-
+    }
+            });
+        // if(showRange){
+        //     setStartTime(sliderBetween()[0]);
+        //     setEndTime(sliderBetween()[1])
+        // }
+        useEffect(()=>{
+        if(submit){
+            console.log('value behind', behind);
+            console.log('values, value:', value);
+            NextDay(behind,total, currDate, value, showRange);
+        Log(total,value,showRange,start_time,end_time,currDate);
+        setSubmit(false);
             }
+            setBehind(null);
+        },[behind]);
             
     };
 
@@ -301,3 +310,4 @@ const style = StyleSheet.create({
         marginTop: '0%',
     }
 });
+

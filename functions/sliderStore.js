@@ -1,5 +1,6 @@
 
 const range = {current:0};
+const sliderBetween = {current:[0,0]}
 
 export const useRangeReturn = () => {
 
@@ -12,6 +13,19 @@ export const useRangeReturn = () => {
 };
 
 
+export const useSlideBetweenReturn = () => {
+
+
+    return sliderBetween.current;
+   
+};
+
+
+
 export const setSliderValues = (values) => {
     range.current = values; 
+};
+
+export const setSliderBetween = (values) => {
+    sliderBetween.current = values; 
 };
