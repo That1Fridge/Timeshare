@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { act, useEffect, useState } from 'react';
 import './style.css';
 import { View, Button, Text, StyleSheet, TextInput } from 'react-native';
-import ScaleBox, {   returnValues}  from './components/scaleBox';
+import ScaleBox, { returnValues } from './components/scaleBox';
 import { Day, Log, NextDay, User } from './dbservice';
 import { connectAndQuery } from './dbconnection';
 import { useRangeReturn, useSlideBetweenReturn } from './functions/sliderStore';
-import { timeTransformer, twentyfourConverter } from './functions/timeConverter';
+import { timeTransformer, toMilliseconds, twentyfourConverter } from './functions/timeConverter';
+import Registered from './components/overlay';
+import { selectedArray } from './functions/selectedArray';
 
 
 
@@ -14,7 +16,7 @@ export default function App() {
     const [showEntryOptions, setShowEntryOptions] = useState(false);
     const [showAmount, setShowAmount] = useState(false);
     const [showRange, setShowRange] = useState(false);
-    const [submit, setSubmit] = useState(false);   
+    const [submit, setSubmit] = useState(false);
     const [currDate, setCurrDate] = useState("");
     const [behind, setBehind] = useState(null);
     const [hrs, setHrs] = useState(0);
@@ -24,11 +26,13 @@ export default function App() {
     const [value, setValue] = useState(0);
     const [start_time, setStartTime] = useState("");
     const [end_time, setEndTime] = useState("");
+    // const [overlays, setOverlays] = useState(null);
+    const [activeOver,setActiveOver] = useState(null);
 
 
 
     Submitfunction();
-
+        if(activeOver!=false){
     return (
 
         <View style={style.body}>
@@ -42,13 +46,26 @@ export default function App() {
             <View style={style.centre}>
                 {EntryOptions()}
                 {Amount()}
-                {/* {Range()} */}
                 {RangeSubmit()}
             </View>
 
 
         </View>
     )
+} else{
+    return  (
+
+        <View >
+
+                {EntryOptions()}
+                {Amount()}
+                {RangeSubmit()}
+
+
+
+        </View>
+    )
+}
 
 
     function EntryOptions() {
@@ -92,7 +109,7 @@ export default function App() {
             return (
                 <View style={style.Options}>
                     <View style={style.amount}>
-                        <TextInput style={style.input} placeholder="  hrs" onChangeText={newText => setHrs(parseInt(newText))}/>
+                        <TextInput style={style.input} placeholder="  hrs" onChangeText={newText => setHrs(parseInt(newText))} />
                         <Text >:</Text>
                         <TextInput style={style.input} placeholder="mins" onChangeText={newText => setMins(parseInt(newText))} />
                         <Text >:</Text>
@@ -109,34 +126,142 @@ export default function App() {
             console.log('Range');
             return (
                 <ScaleBox />
-                
+
             )
         }
     };
 
     function RangeSubmit() {
-        if (showRange) {
+        const [overlays, setOverlays] = useState<any[]>([]); 
+        const [componOverlay, setComponOverlay] = useState<React.ReactNode>(null);
+
+
+        useEffect(() => {
+            if (showRange) {
+                fetchOverlays();
+                setActiveOver(false);
+
+            }
+        
+        }, [showRange]);
+        
+    
+        async function fetchOverlays() {
+            try {
+                const result = await connectAndQuery(`SELECT * FROM Log;`);
+                console.log("RESULT of OVERLAY", result);
+                setOverlays(result);
+                
+
+
+                const overlaysComponents = result.map((overlay: any, index: number) => (
+                    <View key={index}>
+                        {/* {Registered(overlay.end_time - overlay.start_time, overlay.start_time)} */}
+                        {Registered(toMilliseconds(
+                            overlay.end_time.substring(11,13),
+                            overlay.end_time.substring(14,16),
+                            overlay.end_time.substring(17,22)) - toMilliseconds(
+                                overlay.start_time.substring(11,13),
+                                overlay.start_time.substring(14,16),
+                                overlay.start_time.substring(17,22)), 
+                                toMilliseconds(
+                                    overlay.start_time.substring(11,13),
+                                    overlay.start_time.substring(14,16),
+                                    overlay.start_time.substring(17,22))
+                                )}
+                        {/* <Text>`${"end timex,"+ 
+                            overlay.end_time.substring(11,13)+":"+
+                            overlay.end_time.substring(14,16)+":"+
+                            overlay.end_time.substring(17,22)+ "start time" + toMilliseconds(
+                                overlay.start_time.substring(11,13),
+                                overlay.start_time.substring(14,16),
+                                overlay.start_time.substring(17,22))}`</Text> */}
+                    </View>
+                ));
+    
+                setComponOverlay(overlaysComponents);
+                setActiveOver(true);
+            } catch (error) {
+                console.error("Error fetching overlays:", error);
+            }
+        }
+
+        
+        // useEffect(() => {
+        //     if(showRange){
+        //         setOverlays(selectedArray());
+        //     }
+        // },[showRange]);
+        if (showRange && activeOver) {
+            // setOverlays(selectedArray());
+            // let arraylength = overlays.length;
             return (
                 <View style={style.Options}>
-                <View style={style.Range}>
-                    {Range()}
+                    <View style={style.Range}>
+                        {Range()}
+                    </View>
+                    {activeOver&&componOverlay}
+                    {/* <AllOverlaysComponent overlays={overlays} /> */}
+                    <Button title="Submit" onPress={() => (Submit())} />
                 </View>
-                <Button title="Submit" onPress={() => (Submit())} />
-                 </View>
             )
         }
     };
 
+
+    
+
+
+     function AllOverlaysComponent({ overlays }: { overlays: any[] }){
+        // const [componOverlay, setComponOverlay] = useState<React.ReactNode>(null);
+        // const [overlays, setOverlays] = useState<any[]>([]); 
+        // const [componOverlay, setComponOverlay] = useState<React.ReactNode>(null);
+    
+        // useEffect(() => {
+  
+        // const result = connectAndQuery(`SELECT * FROM Log;`)
+            // .then((result) => {
+            //     setOverlays(result);
+
+            //     const overlaysComponents = result.map((overlay: any, index: number) => (
+            //         <View key={index}>
+            //             {Registered(overlay.end_time - overlay.start_time, overlay.start_time)}
+            //         </View>
+            //     ));
+                
+            //     setComponOverlay(overlaysComponents);
+            //     console.log("IN EFFECT", result);
+            //     return componOverlay;
+
+            // });
+    
+        // }, []);
+        console.log("IN OVERLAY");
+        return (
+            <View>
+                {overlays.map((overlay: any, index: number) => (
+                    <View key={index}>
+                        {Registered(overlay.end_time - overlay.start_time, overlay.start_time)}
+                    </View>
+                ))}
+            </View>
+        );
+    
+
+    }
+
+
+
     function Submit() {
         setTotal((hrs * 3600000) + (mins * 60000) + (secs * 1000));
-        if(showRange){
-        //     console.log("TESTTT 1001");
-        // console.log('range try', useRangeReturn());
-        // // const {range} = returnValues();
-        // // console.log("PLEASE WORK : ", range);
-        setValue(useRangeReturn());
-        setStartTime(twentyfourConverter(useSlideBetweenReturn()[0]));
-        setEndTime(twentyfourConverter(useSlideBetweenReturn()[1]));
+        if (showRange) {
+            //     console.log("TESTTT 1001");
+            // console.log('range try', useRangeReturn());
+            // // const {range} = returnValues();
+            // // console.log("PLEASE WORK : ", range);
+            setValue(useRangeReturn());
+            setStartTime(twentyfourConverter(useSlideBetweenReturn()[0]));
+            setEndTime(twentyfourConverter(useSlideBetweenReturn()[1]));
         }
         console.log('total', total);
         setSubmit(true);
@@ -146,56 +271,58 @@ export default function App() {
     function Submitfunction() {
 
         useEffect(() => {
-                
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Ensure 2-digit month
-                const date = now.getDate().toString().padStart(2, "0"); // Ensure 2-digit date
-                  console.log('date ' + `${year}-${month}-${date}`);      
-                  setCurrDate(`${year}-${month}-${date}`);
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Ensure 2-digit month
+            const date = now.getDate().toString().padStart(2, "0"); // Ensure 2-digit date
+            console.log('date ' + `${year}-${month}-${date}`);
+            setCurrDate(`${year}-${month}-${date}`);
 
 
-                //   setBehind(false); 
+            //   setBehind(false); 
 
-        },[]);
+        }, []);
 
-        useEffect(()=>{
-            if(submit){
+        useEffect(() => {
+            if (submit) {
                 console.log('Submitfunction');
                 Day();
                 connectAndQuery(`SELECT TOP 1 daydate
            FROM Day
            ORDER BY daydate DESC;`).then((result) => {
 
-            let maxDate = result[0].daydate.toString().substring(0,10);
-            console.log('begin behind', behind,'date1 ', currDate, 'date2', maxDate);
-            if(parseInt(maxDate.substring(0,4)) < parseInt(currDate.substring(0,4))||
-            parseInt(maxDate.substring(5,7)) < parseInt(currDate.substring(5,7))||
-            parseInt(maxDate.substring(8,10)) < parseInt(currDate.substring(8,10))  ){
-                setBehind(true);
-                console.log('in behind', behind);
-            }else{
-                setBehind(false);
-            }
+                    let maxDate = result[0].daydate.toString().substring(0, 10);
+                    console.log('begin behind', behind, 'date1 ', currDate, 'date2', maxDate);
+                    if (parseInt(maxDate.substring(0, 4)) < parseInt(currDate.substring(0, 4)) ||
+                        parseInt(maxDate.substring(5, 7)) < parseInt(currDate.substring(5, 7)) ||
+                        parseInt(maxDate.substring(8, 10)) < parseInt(currDate.substring(8, 10))) {
+                        setBehind(true);
+                        console.log('in behind', behind);
+                    } else {
+                        setBehind(false);
+                    }
 
+                });
+            }
         });
-    }
-            });
+
+
         // if(showRange){
         //     setStartTime(sliderBetween()[0]);
         //     setEndTime(sliderBetween()[1])
         // }
-        useEffect(()=>{
-        if(submit){
-            console.log('value behind', behind);
-            console.log('values, value:', value);
-            NextDay(behind,total, currDate, value, showRange);
-        Log(total,value,showRange,start_time,end_time,currDate);
-        setSubmit(false);
+        useEffect(() => {
+            if (submit) {
+                console.log('value behind', behind);
+                console.log('values, value:', value);
+                NextDay(behind, total, currDate, value, showRange);
+                Log(total, value, showRange, start_time, end_time, currDate);
+                setSubmit(false);
             }
             setBehind(null);
-        },[behind]);
-            
+        }, [behind]);
+
     };
 
 
@@ -235,6 +362,19 @@ const style = StyleSheet.create({
 
     body: {
         flexGrow: 1,
+    },
+
+    overlay: {
+        backgroundColor: 'red',
+        flexDirection: 'column',
+        marginRight: '70%',
+        marginTop: '10%',
+        marginLeft: '-80%',
+        marginBottom: '30%',
+        justifyContent: 'space-between',
+        position: 'absolute',
+        width: '250%',
+        height: 60,
     },
 
     leftsidebar: {
@@ -277,17 +417,15 @@ const style = StyleSheet.create({
         marginLeft: '35%',
         justifyContent: 'space-between',
         width: '20%',
-
+        position: 'relative'
 
     },
 
     Range: {
-        flexDirection: 'column',
         marginRight: '70%',
         marginTop: '10%',
         marginLeft: '-80%',
         marginBottom: '30%',
-        justifyContent: 'space-between',
         width: '20%',
     },
 

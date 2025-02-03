@@ -6,6 +6,7 @@ import { color } from '@rneui/themed/dist/config';
 // import { range } from './App';
 import { useRangeReturn, setSliderValues, setSliderBetween } from '../functions/sliderStore.js'; 
 import {timeTransformer} from '../functions/timeConverter';
+import { Slider } from 'react-compound-slider';
 
 
   
