@@ -2,18 +2,25 @@ import React, { act, useEffect, useState } from 'react';
 import './style.css';
 import { View, Button, Text, StyleSheet, TextInput } from 'react-native';
 import ScaleBox, { returnValues } from './components/scaleBox';
-import { Day, Log, NextDay, User } from './dbservice';
+import { Activity, Day, Log, NextDay, User } from './dbservice';
+import RankTable from './components/rankingTable';
 import { connectAndQuery } from './dbconnection';
 import { useRangeReturn, useSlideBetweenReturn } from './functions/sliderStore';
 import { timeTransformer, toMilliseconds, twentyfourConverter } from './functions/timeConverter';
 import Registered from './components/overlay';
 import { selectedArray } from './functions/selectedArray';
+import { ActivityEnter } from './components/Activity'
+import RankButton, { DraggableList, returnValuesRank } from './components/rankButton';
+import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { pressed } from './functions/rankingfunctions';
+
 
 
 
 
 export default function App() {
-    const [showEntryOptions, setShowEntryOptions] = useState(false);
+    const [showEntryOptions, setShowEntryOptions] = useState(true);
     const [showAmount, setShowAmount] = useState(false);
     const [showRange, setShowRange] = useState(false);
     const [submit, setSubmit] = useState(false);
@@ -28,7 +35,22 @@ export default function App() {
     const [end_time, setEndTime] = useState("");
     // const [overlays, setOverlays] = useState(null);
     const [activeOver,setActiveOver] = useState(null);
+    const [entryButton, setEntryButton]= useState(true);
+    const [rankShown, setRankShown] = useState(pressed());
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const currentPressed = pressed();
+            setRankShown(prev => {
+                if (prev !== currentPressed) {
+                    return currentPressed;
+                }
+                return prev;
+            });
+        }, 100); // Check for changes every 100ms
+
+        return () => clearInterval(interval);
+    }, []);
 
 
     Submitfunction();
@@ -41,12 +63,19 @@ export default function App() {
             </View>
 
             <View style={style.leftsidebar}>
+            <View id='entry' >
+                            <Button title="Entry" onPress={() => (setShowEntryOptions(true), setShowAmount(false), setShowRange(false))} />
+                        </View>
+                        <RankButton />
+                <RankTable />
             </View>
 
             <View style={style.centre}>
                 {EntryOptions()}
                 {Amount()}
                 {RangeSubmit()}
+                {/* <DraggableList /> */}
+            {RankShow()}
             </View>
 
 
@@ -65,6 +94,23 @@ export default function App() {
 
         </View>
     )
+}
+
+
+
+function RankShow(){
+    console.log("return", rankShown);
+    if (rankShown) {
+        return (
+            <View style={style.rank}>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                    <DraggableList />
+                </GestureHandlerRootView>
+            </View>
+        );
+    } else {
+        return null;
+    }
 }
 
 
@@ -107,6 +153,7 @@ export default function App() {
         if (showAmount) {
             console.log('Amount');
             return (
+                <View>
                 <View style={style.Options}>
                     <View style={style.amount}>
                         <TextInput style={style.input} placeholder="  hrs" onChangeText={newText => setHrs(parseInt(newText))} />
@@ -116,6 +163,8 @@ export default function App() {
                         <TextInput style={style.input} placeholder="secs" onChangeText={newText => setSecs(parseInt(newText))} />
                     </View>
                     <Button title="Submit" onPress={() => (Submit())} />
+                </View>
+                <ActivityEnter/>
                 </View>
             )
         }
@@ -187,15 +236,12 @@ export default function App() {
         }
 
         
-        // useEffect(() => {
-        //     if(showRange){
-        //         setOverlays(selectedArray());
-        //     }
-        // },[showRange]);
+
         if (showRange && activeOver) {
             // setOverlays(selectedArray());
             // let arraylength = overlays.length;
             return (
+                <View>
                 <View style={style.Options}>
                     <View style={style.Range}>
                         {Range()}
@@ -204,6 +250,9 @@ export default function App() {
                     {/* <AllOverlaysComponent overlays={overlays} /> */}
                     <Button title="Submit" onPress={() => (Submit())} />
                 </View>
+                <ActivityEnter />
+
+                </View>
             )
         }
     };
@@ -211,44 +260,6 @@ export default function App() {
 
     
 
-
-     function AllOverlaysComponent({ overlays }: { overlays: any[] }){
-        // const [componOverlay, setComponOverlay] = useState<React.ReactNode>(null);
-        // const [overlays, setOverlays] = useState<any[]>([]); 
-        // const [componOverlay, setComponOverlay] = useState<React.ReactNode>(null);
-    
-        // useEffect(() => {
-  
-        // const result = connectAndQuery(`SELECT * FROM Log;`)
-            // .then((result) => {
-            //     setOverlays(result);
-
-            //     const overlaysComponents = result.map((overlay: any, index: number) => (
-            //         <View key={index}>
-            //             {Registered(overlay.end_time - overlay.start_time, overlay.start_time)}
-            //         </View>
-            //     ));
-                
-            //     setComponOverlay(overlaysComponents);
-            //     console.log("IN EFFECT", result);
-            //     return componOverlay;
-
-            // });
-    
-        // }, []);
-        console.log("IN OVERLAY");
-        return (
-            <View>
-                {overlays.map((overlay: any, index: number) => (
-                    <View key={index}>
-                        {Registered(overlay.end_time - overlay.start_time, overlay.start_time)}
-                    </View>
-                ))}
-            </View>
-        );
-    
-
-    }
 
 
 
@@ -342,6 +353,21 @@ const style = StyleSheet.create({
 
     },
 
+    rank:{
+        width:'15%',
+        marginLeft:'38%',
+        marginTop:'5%', 
+        shadowColor:'black',
+        shadowRadius:3000,
+        shadowOpacity:1,
+        boxShadow: '0px -4px 20000px rgba(0, 0, 0, 1)',
+        borderColor: 'rgba(248,248,248,1)', // Ensure shadow is visible
+        borderRadius:10,
+        borderWidth:5,
+        borderTopWidth:5,
+        borderBottomWidth:5,
+    },
+
     amount: {
         width: '40%',
         marginLeft: '30%',
@@ -409,6 +435,25 @@ const style = StyleSheet.create({
         marginLeft: '25%',
         borderRadius: 0,
 
+    },
+
+    Activity:{
+        marginLeft:'20%',
+    },
+
+    activityEnter:{
+        width:'10%',
+        borderColor:'white',
+        borderWidth:3,
+        paddingLeft:'0.25%',
+        fontWeight:'400'
+    },
+
+    ActivityTitle:{
+        alignItems:'center',
+        marginLeft:'2%',
+        fontSize:20,
+        fontWeight:'bold'
     },
 
     Options: {

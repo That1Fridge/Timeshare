@@ -111,7 +111,12 @@ export function NextDay(behind: boolean, total: number, currDate: string, value:
 };
 
 
-export function Entry(){
-
+export function Activity(){
+    connectAndQuery(`IF OBJECT_ID('dbo.Activity', 'U') IS NULL
+BEGIN
+    CREATE TABLE Activity (
+        ActivityName NVARCHAR(255) PRIMARY KEY,
+    );
+END;`);
 };
 

@@ -2,3 +2,5 @@ Todo features
 
 - Ranking, 
  Distrubution line overall
+ Lower case all activity names
+ When open rank darkens background

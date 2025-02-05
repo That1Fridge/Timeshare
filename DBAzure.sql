@@ -70,4 +70,14 @@ BEGIN
 END;
 
 
+IF OBJECT_ID('dbo.Activity', 'U') IS NULL
+BEGIN
+    CREATE TABLE Activity (
+        ActivityName NVARCHAR(255) PRIMARY KEY,
+    );
+END;
+
+
+
+
 INSERT INTO Day DEFAULT VALUES;

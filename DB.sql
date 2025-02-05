@@ -39,3 +39,8 @@ CREATE TABLE
 
 
 
+CREATE TABLE 
+    IF NOT EXISTS Activity (
+        ActivityName TEXT PRIMARY KEY,
+    );
+END;
