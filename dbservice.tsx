@@ -30,14 +30,14 @@ BEGIN
         daydate DATE NOT NULL,
         FOREIGN KEY (daydate) REFERENCES Day(daydate)
     );
-END;`);
+END;`,false);
 
 if(showRange){
 connectAndQuery(`INSERT INTO Log (total_time, start_time, end_time, daydate) 
-    VALUES (${value}, '${start_time}', '${end_time}', '${date}');`);
+    VALUES (${value}, '${start_time}', '${end_time}', '${date}');`,false);
 }else{
     connectAndQuery(`INSERT INTO Log (total_time, daydate) 
-    VALUES (${total}, '${date}');`);
+    VALUES (${total}, '${date}');`,false);
 
 }
 
@@ -54,7 +54,7 @@ export function User() {
     );
 END;`
     console.log("a");
-    connectAndQuery(query);
+    connectAndQuery(query,false);
 };
 
 // export function User(){
@@ -87,25 +87,25 @@ BEGIN
         daydate DATE  PRIMARY KEY,
         timeLeft INT NOT NULL DEFAULT 86400000
     );
-END; `);
+END; `,false);
 };
 
 
 export function NextDay(behind: boolean, total: number, currDate: string, value: number, showRange: boolean){
     if(behind&&showRange){
         console.log('in Behind');
-        connectAndQuery(`INSERT INTO Day(daydate,timeLeft) VALUES ('${currDate}',${86400000-value});`);
+        connectAndQuery(`INSERT INTO Day(daydate,timeLeft) VALUES ('${currDate}',${86400000-value});`,false);
     }else if(behind){
         console.log('in Behind');
-        connectAndQuery(`INSERT INTO Day(daydate,timeLeft) VALUES ('${currDate}',${86400000-total});`);
+        connectAndQuery(`INSERT INTO Day(daydate,timeLeft) VALUES ('${currDate}',${86400000-total});`,false);
     }
     else if(showRange){
         console.log('from range value',value);
-        connectAndQuery(`UPDATE Day SET timeLeft = ${86400000-value} WHERE daydate = '${currDate}';`);
+        connectAndQuery(`UPDATE Day SET timeLeft = ${86400000-value} WHERE daydate = '${currDate}';`,false);
     }
     else {
         console.log('not in behindConvert to millseconds');
-        connectAndQuery(`UPDATE Day SET timeLeft = ${86400000-total} WHERE daydate = '${currDate}';`);
+        connectAndQuery(`UPDATE Day SET timeLeft = ${86400000-total} WHERE daydate = '${currDate}';`,false);
     }
 
 };
@@ -116,7 +116,8 @@ export function Activity(){
 BEGIN
     CREATE TABLE Activity (
         ActivityName NVARCHAR(255) PRIMARY KEY,
+        Ranking INT NOT NULL UNIQUE
     );
-END;`);
+END;`, true);   
 };
 

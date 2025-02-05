@@ -6,35 +6,27 @@ const selected = {current:null};
 
 export async function selectedArray(){
     // const [selected, setSelected] = useState(null)
-
-    connectAndQuery(`SELECT * FROM Log;`).then((result) => {
+    Activity();
+    
+    connectAndQuery(`SELECT * FROM Activity;`).then((result) => {
 
         console.log("IN ARRAY",result);
 
-        return (result);
+        selected.current= (result);
        
     });
-
-
-
-
-    // console.log("IN ARRAY",selected.current);
-    
-
-    // return selected.current;
     
 
 }
 
 export const useSelectedArray = () => {
-    // selectedArray()
-    // if(selected.current!=null){
-    //     console.log("IN ARRAY",selected.current[0].start_time);
-    //     }
-    // return selected.current;
+    selectedArray()
 
-    // const {range} = returnValues();
-    // console.log("range cool", range);
+    const OPTIONS = {id:Number,label:String};
+    if(selected.current!=null){
+        console.log("IN ARRAY",selected.current[0].start_time);
+        return selected.current;
 
-    // return range;
+        }
+
 };

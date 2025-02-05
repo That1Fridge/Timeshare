@@ -4,8 +4,11 @@ import React, { useEffect, useState } from "react";
 import DraggableFlatList, { NestableScrollContainer, NestableDraggableFlatList, RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist'; 
 import { Header } from "@rneui/themed";
 import 'react-native-gesture-handler';
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { GestureHandlerRootView, TextInput } from "react-native-gesture-handler";
 import { pressed, setPressed } from "../functions/rankingfunctions";
+import { useSelectedArray } from "../functions/selectedArray";
+import { Activity } from "../dbservice";
+import { connectAndQuery } from "../dbconnection";
 
 
 
@@ -184,42 +187,151 @@ export function returnValuesRank(){
 
 const OPTIONS = [
   { id: "1", label: "Option 1" },
-  { id: "2", label: "Option 2" },
-  { id: "3", label: "Option 3" },
-  { id: "4", label: "Option 4" },
+
 ];
+
+// const OPTIONS = useSelectedArray();
+const selected = {current:null};
+
+export async function selectedArray(): Promise<Item[]> {
+    // const [selected, setSelected] = useState(null)
+    Activity();
+    // console.log("selected",selected.current);
+    return connectAndQuery(`SELECT * FROM Activity;`,true).then((result) => {
+        // console.log("IN ARRAY", result);
+
+        selected.current = result;
+        return result;
+    });
+}
+
+type Item = {
+  ActivityName: string;
+  Ranking: string;
+
+};
+
+const string = {current:null};
 
 
 export function DraggableList (){
-  const [data, setData] = useState(OPTIONS);
+  const [datas, setData] = useState<Item[]>([]);
+  const [valuesString, setvaluesString] = useState("");
+  const [first,setFirst] = useState(true);
+  // const [data, setData] = useState(OPTIONS);
 
-  return (
-    <View style={style.container}>
-      <DraggableFlatList
-        data={data}
-        keyExtractor={(item) => item.id}
-        onDragEnd={({ data }) => setData(data)}
-        activationDistance={1} // Reduces delay before dragging
-        renderItem={({ item, drag, isActive }) => {
-        
-          return (
-            <TouchableOpacity
-              onLongPress={drag} // This should trigger dragging
-              disabled={isActive} // Prevents issues while dragging
-              delayLongPress={0} 
-              style={[style.item, isActive && style.activeItem]}
-            >
-              <Text style={style.typetext}>{item.label}</Text>
-            </TouchableOpacity>
-          );
-        }}
-        
+  const [component, setComponent] = useState(null);
+  /*UseEffect so doesnt continally connect data base only intervally
+   so network connection errors will be avoided*/
+      // if(selected.current==null){
+        useEffect(() => {
 
-      />
+          /*If statment, is so only do Interval, after you first
+          ,Open the drag list, so first opening won't take to long
+          and lag from switching order, due to waiting for query response,
+          does not occur because interval is long enough that query most
+           likely is concluded.*/
+          if(first){
+            selectedArray().then((result) => {
+              console.log("waiting");
+              setData(result);
+              // console.log("IN result", result);
+          
+          })
+          }else{
 
-    </View>
-    
-  );
+            const interval = setInterval(() => {
+  selectedArray().then((result) => {
+    setData(result);
+    // console.log("IN result", result);
+
+});
+
+}, 10000); // Check for changes every 100ms
+
+return () => clearInterval(interval);
+          }
+}, []);
+
+
+
+useEffect(() => {
+  // console.log("IN drag", data);
+
+  setComponent (
+  <View style={style.container}>
+    <DraggableFlatList
+      data={datas}
+      keyExtractor={(item) => `${item.Ranking}`}
+      onDragEnd={({ data }) => (setData(data),
+      string.current = ( data.map((item, index) => `('${item.ActivityName}', ${index+1})`).join(", ")),
+      console.log("val string",string.current),
+      connectAndQuery(
+        `MERGE INTO Activity AS Target
+USING (VALUES ${string.current}) 
+AS Source(ActivityName, Ranking)
+ON Target.ActivityName = Source.ActivityName
+WHEN MATCHED THEN 
+    UPDATE SET Ranking = Source.Ranking
+WHEN NOT MATCHED THEN 
+    INSERT (ActivityName, Ranking) VALUES (Source.ActivityName, Source.Ranking);
+`,false))}
+      activationDistance={1} // Reduces delay before dragging
+      renderItem={({ item, drag, isActive }) => {
+      
+        return (
+          <TouchableOpacity
+            onLongPress={drag} // This should trigger dragging
+            disabled={isActive} // Prevents issues while dragging
+            delayLongPress={0} 
+            style={[style.item, isActive && style.activeItem]}
+          >
+            <Text style={style.typetext}>{`${item.ActivityName}`}</Text>
+          </TouchableOpacity>
+        );
+      }}
+      
+
+    />
+
+    <TextInput></TextInput>
+
+  </View>
+  
+);
+},[datas]);
+ return component;
+// selectedArray();
+// console.log("OPTIONS",OPTIONS);
+//     return(
+//           <View style={style.container}>
+//             <DraggableFlatList
+//               data={data}
+//               keyExtractor={(item) => item.id}
+//               onDragEnd={({ data }) => setData(data)}
+//               activationDistance={1} // Reduces delay before dragging
+//               renderItem={({ item, drag, isActive }) => {
+              
+//                 return (
+//                   <TouchableOpacity
+//                     onLongPress={drag} // This should trigger dragging
+//                     disabled={isActive} // Prevents issues while dragging
+//                     delayLongPress={0} 
+//                     style={[style.item, isActive && style.activeItem]}
+//                   >
+//                     <Text style={style.typetext}>{item.label}</Text>
+//                   </TouchableOpacity>
+//                 );
+//               }}
+              
+      
+//             />
+      
+//             <TextInput></TextInput>
+      
+//           </View>
+          
+//         );
 };
 
 

@@ -8,7 +8,6 @@ import { connectAndQuery } from './dbconnection';
 import { useRangeReturn, useSlideBetweenReturn } from './functions/sliderStore';
 import { timeTransformer, toMilliseconds, twentyfourConverter } from './functions/timeConverter';
 import Registered from './components/overlay';
-import { selectedArray } from './functions/selectedArray';
 import { ActivityEnter } from './components/Activity'
 import RankButton, { DraggableList, returnValuesRank } from './components/rankButton';
 import 'react-native-gesture-handler';
@@ -105,6 +104,7 @@ function RankShow(){
             <View style={style.rank}>
                 <GestureHandlerRootView style={{ flex: 1 }}>
                     <DraggableList />
+                    {/* {DraggableList()} */}
                 </GestureHandlerRootView>
             </View>
         );
@@ -112,6 +112,7 @@ function RankShow(){
         return null;
     }
 }
+
 
 
     function EntryOptions() {
@@ -197,7 +198,7 @@ function RankShow(){
     
         async function fetchOverlays() {
             try {
-                const result = await connectAndQuery(`SELECT * FROM Log;`);
+                const result = await connectAndQuery(`SELECT * FROM Log;`,false);
                 console.log("RESULT of OVERLAY", result);
                 setOverlays(result);
                 
@@ -301,7 +302,7 @@ function RankShow(){
                 Day();
                 connectAndQuery(`SELECT TOP 1 daydate
            FROM Day
-           ORDER BY daydate DESC;`).then((result) => {
+           ORDER BY daydate DESC;`,false).then((result) => {
 
                     let maxDate = result[0].daydate.toString().substring(0, 10);
                     console.log('begin behind', behind, 'date1 ', currDate, 'date2', maxDate);
