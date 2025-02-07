@@ -8,11 +8,12 @@ import { connectAndQuery } from './dbconnection';
 import { useRangeReturn, useSlideBetweenReturn } from './functions/sliderStore';
 import { timeTransformer, toMilliseconds, twentyfourConverter } from './functions/timeConverter';
 import Registered from './components/overlay';
-import { ActivityEnter } from './components/Activity'
+import { ActivityEnter, returnActivity, returnCustomActivity, returnDaycent, returnPercent, returnRank } from './components/Activity'
 import RankButton, { DraggableList, returnValuesRank } from './components/rankButton';
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { pressed } from './functions/rankingfunctions';
+import { DistributionBar } from './components/overallDistribution';
 
 
 
@@ -36,6 +37,7 @@ export default function App() {
     const [activeOver,setActiveOver] = useState(null);
     const [entryButton, setEntryButton]= useState(true);
     const [rankShown, setRankShown] = useState(pressed());
+    const [activity, setActivity] = useState("");
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -74,7 +76,10 @@ export default function App() {
                 {Amount()}
                 {RangeSubmit()}
                 {/* <DraggableList /> */}
-            {RankShow()}
+            <DistributionBar/>
+            {/* {RankShow()} */}
+            <RankShow/>
+
             </View>
 
 
@@ -188,6 +193,7 @@ function RankShow(){
 
         useEffect(() => {
             if (showRange) {
+                console.log("in here now");
                 fetchOverlays();
                 setActiveOver(false);
 
@@ -198,7 +204,21 @@ function RankShow(){
     
         async function fetchOverlays() {
             try {
-                const result = await connectAndQuery(`SELECT * FROM Log;`,false);
+                const result = await connectAndQuery(`IF OBJECT_ID('dbo.Log', 'U') IS NULL
+BEGIN
+    CREATE TABLE Log (
+        entryId INT IDENTITY(1,1) PRIMARY KEY,
+        total_time INT NOT NULL,
+        start_time TIME,
+        end_time TIME,
+        daydate DATE NOT NULL,
+        ActivityName NVARCHAR(255) NOT NULL,
+        FOREIGN KEY (daydate) REFERENCES Day(daydate),
+        FOREIGN KEY (ActivityName) REFERENCES Activity(ActivityName)
+        
+    );
+END;
+SELECT * FROM Log;`,false);
                 console.log("RESULT of OVERLAY", result);
                 setOverlays(result);
                 
@@ -251,10 +271,11 @@ function RankShow(){
                     {/* <AllOverlaysComponent overlays={overlays} /> */}
                     <Button title="Submit" onPress={() => (Submit())} />
                 </View>
-                <ActivityEnter />
-
+                {/* <ActivityEnter /> */}
+                {ActivityEnter()}
                 </View>
             )
+
         }
     };
 
@@ -319,6 +340,7 @@ function RankShow(){
             }
         });
 
+        console.log("activity", activity);
 
         // if(showRange){
         //     setStartTime(sliderBetween()[0]);
@@ -329,7 +351,7 @@ function RankShow(){
                 console.log('value behind', behind);
                 console.log('values, value:', value);
                 NextDay(behind, total, currDate, value, showRange);
-                Log(total, value, showRange, start_time, end_time, currDate);
+                Log(total, value, showRange, start_time, end_time, currDate,returnActivity(), returnRank(),returnPercent(),returnDaycent(),returnCustomActivity());
                 setSubmit(false);
             }
             setBehind(null);

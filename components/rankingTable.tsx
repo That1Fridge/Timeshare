@@ -1,4 +1,40 @@
 import { View, StyleSheet, Text } from "react-native";
+import { Activity } from "../dbservice";
+import { connectAndQuery } from "../dbconnection";
+import { useEffect, useState } from "react";
+import { Item, selectedArray } from "../functions/selectedArray";
+
+
+// const OPTIONS = useSelectedArray();
+const selected = {current:null};
+
+// export async function selectedArray(): Promise<Item[]> {
+//     // const [selected, setSelected] = useState(null)
+//     // Activity();
+//     // console.log("selected",selected.current);
+//     return connectAndQuery(`
+//         IF OBJECT_ID('dbo.Activity', 'U') IS NULL
+//     BEGIN
+//     CREATE TABLE Activity (
+//         ActivityName NVARCHAR(255) PRIMARY KEY,
+//         Ranking INT NOT NULL UNIQUE,
+//         PercentOverall INT NOT NULL UNIQUE,
+//         DayPercent INT
+//     );
+//     END;
+//         SELECT * FROM Activity;`,true).then((result) => {
+//         // console.log("IN ARRAY", result);
+
+//         selected.current = result;
+//         return result;
+//     });
+// }
+
+// type Item = {
+//   ActivityName: string;
+//   Ranking: string;
+
+// };
 
 
 export default function RankTable() {
@@ -8,25 +44,66 @@ export default function RankTable() {
         { rank: 3, name: 'Charlie' },
     ];
 
-    return (
+
+      const [datas, setData] = useState<Item[]>([]);
+      const [valuesString, setvaluesString] = useState("");    
+
+
+    const [first,setFirst] = useState(true);
+    
+      const [component, setComponent] = useState(null);
+      /*UseEffect so doesnt continally connect data base only intervally
+       so network connection errors will be avoided*/
+            useEffect(() => {
+    
+            if(first){
+                selectedArray().then((result) => {
+                  console.log("waiting");
+                  setData(result);
+                  setFirst(false);
+                  console.log("IN result", result);
+              
+              })
+              }else{
+    
+                const interval = setInterval(() => {
+      selectedArray().then((result) => {
+
+        setData(result);
+        console.log("IN result data", result);
+    
+    });
+    
+    }, 1000); // Check for changes every 100ms
+    
+    return () => clearInterval(interval);
+              }
+    });
+
+    useEffect(() => {
+    setComponent(
         <View>
         <View style={style.table}>
         <View style={style.entry}>
         <Text style={style.text}>Ranking</Text>
         </View>
     
-        {rankEntries.map(({ rank, name }, index) => (
-            <RankEntry key={index} rank={rank} name={name} />
+        {datas.map(({ ActivityName, Ranking }, index) => (
+            <RankEntry key={index} rank={`${Ranking}`} name={ActivityName} />
         ))}
         </View>
 
         </View>
     );
+},[datas]);
+
+
+return component;
 }
 
 
 interface RankEntryProps {
-    rank: number;
+    rank: string;
     name: string;
 }
 

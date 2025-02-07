@@ -6,7 +6,6 @@ import { Header } from "@rneui/themed";
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView, TextInput } from "react-native-gesture-handler";
 import { pressed, setPressed } from "../functions/rankingfunctions";
-import { useSelectedArray } from "../functions/selectedArray";
 import { Activity } from "../dbservice";
 import { connectAndQuery } from "../dbconnection";
 
@@ -197,7 +196,17 @@ export async function selectedArray(): Promise<Item[]> {
     // const [selected, setSelected] = useState(null)
     Activity();
     // console.log("selected",selected.current);
-    return connectAndQuery(`SELECT * FROM Activity;`,true).then((result) => {
+    return connectAndQuery(`
+    IF OBJECT_ID('dbo.Activity', 'U') IS NULL
+    BEGIN
+    CREATE TABLE Activity (
+        ActivityName NVARCHAR(255) PRIMARY KEY,
+        Ranking INT NOT NULL UNIQUE,
+        PercentOverall INT NOT NULL UNIQUE,
+        DayPercent INT
+    );
+    END;
+        SELECT * FROM Activity;`,true).then((result) => {
         // console.log("IN ARRAY", result);
 
         selected.current = result;

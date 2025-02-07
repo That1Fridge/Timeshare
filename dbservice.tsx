@@ -17,10 +17,19 @@ import { useEffect, useState } from 'react';
 //   })
 
 
+const setActivity = {current:null};
 
-
-export function Log(total: number,value: number, showRange: boolean, start_time:string ,end_time: string, date:string) {
-    connectAndQuery(`IF OBJECT_ID('dbo.Log', 'U') IS NULL
+export function Log(total: number,value: number, showRange: boolean, start_time:string ,end_time: string, date:string,activity:string,rank:string,percent:string,daycent:string,customActivity:String) {
+    console.log("CUS ACTIVITY",customActivity);
+    if(activity=='custom'){
+        setActivity.current = customActivity;
+    }else{
+        setActivity.current = activity;
+    }
+    
+    
+    connectAndQuery(`  
+IF OBJECT_ID('dbo.Log', 'U') IS NULL
 BEGIN
     CREATE TABLE Log (
         entryId INT IDENTITY(1,1) PRIMARY KEY,
@@ -28,16 +37,47 @@ BEGIN
         start_time TIME,
         end_time TIME,
         daydate DATE NOT NULL,
-        FOREIGN KEY (daydate) REFERENCES Day(daydate)
+        ActivityName NVARCHAR(255) NOT NULL,
+        FOREIGN KEY (daydate) REFERENCES Day(daydate),
+        FOREIGN KEY (ActivityName) REFERENCES Activity(ActivityName)
+        
     );
 END;`,false);
 
 if(showRange){
-connectAndQuery(`INSERT INTO Log (total_time, start_time, end_time, daydate) 
-    VALUES (${value}, '${start_time}', '${end_time}', '${date}');`,false);
+connectAndQuery(`IF OBJECT_ID('dbo.Activity', 'U') IS NULL
+BEGIN
+    CREATE TABLE Activity (
+        ActivityName NVARCHAR(255) PRIMARY KEY,
+        Ranking INT NOT NULL UNIQUE,
+        PercentOverall INT NOT NULL UNIQUE,
+        DayPercent INT
+    );
+END;
+IF NOT EXISTS (SELECT 1 FROM Activity WHERE ActivityName = '${setActivity.current}')  
+BEGIN  
+    INSERT INTO Activity (ActivityName, Ranking, PercentOverall, DayPercent)  
+    VALUES ('${setActivity.current}', ${rank}, ${percent}, ${daycent});  
+END;
+    INSERT INTO Log (total_time, start_time, end_time, daydate,ActivityName) 
+    VALUES (${value}, '${start_time}', '${end_time}', '${date}','${setActivity.current}');`,false);
 }else{
-    connectAndQuery(`INSERT INTO Log (total_time, daydate) 
-    VALUES (${total}, '${date}');`,false);
+    connectAndQuery(`IF OBJECT_ID('dbo.Activity', 'U') IS NULL
+BEGIN
+    CREATE TABLE Activity (
+        ActivityName NVARCHAR(255) PRIMARY KEY,
+        Ranking INT NOT NULL UNIQUE,
+        PercentOverall INT NOT NULL UNIQUE,
+        DayPercent INT
+    );
+END;
+IF NOT EXISTS (SELECT 1 FROM Activity WHERE ActivityName = '${setActivity.current}')  
+BEGIN  
+    INSERT INTO Activity (ActivityName, Ranking, PercentOverall, DayPercent)  
+    VALUES ('${setActivity.current}', ${rank}, ${percent}, ${daycent});  
+END;
+        INSERT INTO Log (total_time, daydate,ActivityName) 
+    VALUES (${total}, '${date}', '${setActivity.current}');`,false);
 
 }
 
@@ -116,8 +156,11 @@ export function Activity(){
 BEGIN
     CREATE TABLE Activity (
         ActivityName NVARCHAR(255) PRIMARY KEY,
-        Ranking INT NOT NULL UNIQUE
+        Ranking INT NOT NULL UNIQUE,
+        PercentOverall INT NOT NULL UNIQUE,
+        DayPercent INT
     );
-END;`, true);   
+END;`, false);   
 };
+
 

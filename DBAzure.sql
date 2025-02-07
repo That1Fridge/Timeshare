@@ -47,8 +47,10 @@ BEGIN
         total_time INT NOT NULL,
         start_time DATETIME,
         end_time DATETIME,
-        dayId INT,
-        FOREIGN KEY (dayId) REFERENCES Day(dayId)
+        dayId INT NOT NULL,
+        ActivityName NVARCHAR(255) NOT NULL, 
+        FOREIGN KEY (dayId) REFERENCES Day(dayId),
+        FOREIGN KEY (ActivityName) REFERENCES Activity(ActivityName)
     );
 END;
 
@@ -74,6 +76,11 @@ IF OBJECT_ID('dbo.Activity', 'U') IS NULL
 BEGIN
     CREATE TABLE Activity (
         ActivityName NVARCHAR(255) PRIMARY KEY,
+        Ranking INT NOT NULL UNIQUE,
+        PercentOverall INT NOT NULL,
+        DayPercent INT
+
+
     );
 END;
 
