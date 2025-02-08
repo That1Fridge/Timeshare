@@ -217,7 +217,9 @@ BEGIN
         
     );
 END;
-SELECT * FROM Log;`,false);
+SELECT L.*, A.ColorType
+FROM Log L
+JOIN Activity A ON L.ActivityName = A.ActivityName;`,false);
                 console.log("RESULT of OVERLAY", result);
                 setOverlays(result);
                 
@@ -237,15 +239,8 @@ SELECT * FROM Log;`,false);
                                     result.start_time.substring(11,13),
                                     result.start_time.substring(14,16),
                                     result.start_time.substring(17,22)),
-                                    "red"
+                                    ("rgb"+result.ColorType)
                                 )}
-                        {/* <Text>`${"end timex,"+ 
-                            overlay.end_time.substring(11,13)+":"+
-                            overlay.end_time.substring(14,16)+":"+
-                            overlay.end_time.substring(17,22)+ "start time" + toMilliseconds(
-                                overlay.start_time.substring(11,13),
-                                overlay.start_time.substring(14,16),
-                                overlay.start_time.substring(17,22))}`</Text> */}
                     </View>
                 ));
     
