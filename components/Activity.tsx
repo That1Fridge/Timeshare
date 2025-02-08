@@ -2,15 +2,17 @@ import { Picker } from "@react-native-picker/picker";
 import { useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Item, selectedArray } from "../functions/selectedArray";
+import { RgbColorPicker } from "react-colorful";
 
 const selectedactivity = {current:null};
 const selectedcustomactivity = {current:null};
 const selectedrank= {current:null};
 const selectedpercent = {current:null};
 const selecteddaycent= {current:null};
+const selectedColor = {current:null};
 
 export function ActivityEnter(){
-   
+
     return(<View style={style.Activity}>
         <Text style={style.ActivityTitle}>Activity</Text>
         {/* <TextInput style={style.activityEnter} onChangeText={newText =>setActivity(newText)}></TextInput> */}
@@ -28,6 +30,8 @@ const DropdownWithTextInput = () => {
     const [customDaycent, setCustomDaycent] = useState("");
     const [result, setResult ] = useState("");
     const [newVal, setNewVal] = useState(null);
+    const [color, setColor] = useState({ r: 50, g: 100, b: 150 });
+
   
     const [componActivity, setComponActivity] = useState<React.ReactNode>(null);
         const [first, setFirst] = useState(true);
@@ -79,6 +83,8 @@ selectedpercent.current = customPercent;
 selecteddaycent.current = customDaycent;
 
 selectedcustomactivity.current = customValue;
+
+selectedColor.current = "("+color.r+","+color.g+","+color.b+")";
 
 console.log("current",selectedactivity.current);
 
@@ -157,6 +163,7 @@ return (
         }}
       />
       </View>
+      <RgbColorPicker color={color} onChange={setColor} style={style.ColorChooser}  />
       </View>
 
       )}
@@ -193,6 +200,9 @@ export const returnDaycent= () => {
   return selecteddaycent.current;
 }
 
+export const returnColor= () => {
+  return selectedColor.current;
+}
 
 
 
@@ -207,6 +217,16 @@ const style = StyleSheet.create({
 
 Activity:{
     marginLeft:'20%',
+},
+
+
+ColorChooser:{
+  width:'100%',
+  height:150,
+  // margin:0,
+  // padding:0,
+  
+
 },
 
 activityEnter:{

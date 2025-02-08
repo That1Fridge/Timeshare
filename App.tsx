@@ -8,7 +8,7 @@ import { connectAndQuery } from './dbconnection';
 import { useRangeReturn, useSlideBetweenReturn } from './functions/sliderStore';
 import { timeTransformer, toMilliseconds, twentyfourConverter } from './functions/timeConverter';
 import Registered from './components/overlay';
-import { ActivityEnter, returnActivity, returnCustomActivity, returnDaycent, returnPercent, returnRank } from './components/Activity'
+import { ActivityEnter, returnActivity, returnColor, returnCustomActivity, returnDaycent, returnPercent, returnRank } from './components/Activity'
 import RankButton, { DraggableList, returnValuesRank } from './components/rankButton';
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -77,8 +77,7 @@ export default function App() {
                 {RangeSubmit()}
                 {/* <DraggableList /> */}
             <DistributionBar/>
-            {/* {RankShow()} */}
-            <RankShow/>
+            {RankShow()}
 
             </View>
 
@@ -223,21 +222,22 @@ SELECT * FROM Log;`,false);
                 setOverlays(result);
                 
 
-
-                const overlaysComponents = result.map((overlay: any, index: number) => (
+                if(result!=null){
+                const overlaysComponents = result.map((result, index: number) => (
                     <View key={index}>
                         {/* {Registered(overlay.end_time - overlay.start_time, overlay.start_time)} */}
                         {Registered(toMilliseconds(
-                            overlay.end_time.substring(11,13),
-                            overlay.end_time.substring(14,16),
-                            overlay.end_time.substring(17,22)) - toMilliseconds(
-                                overlay.start_time.substring(11,13),
-                                overlay.start_time.substring(14,16),
-                                overlay.start_time.substring(17,22)), 
+                            result.end_time.substring(11,13),
+                            result.end_time.substring(14,16),
+                            result.end_time.substring(17,22)) - toMilliseconds(
+                                result.start_time.substring(11,13),
+                                result.start_time.substring(14,16),
+                                result.start_time.substring(17,22)), 
                                 toMilliseconds(
-                                    overlay.start_time.substring(11,13),
-                                    overlay.start_time.substring(14,16),
-                                    overlay.start_time.substring(17,22))
+                                    result.start_time.substring(11,13),
+                                    result.start_time.substring(14,16),
+                                    result.start_time.substring(17,22)),
+                                    "red"
                                 )}
                         {/* <Text>`${"end timex,"+ 
                             overlay.end_time.substring(11,13)+":"+
@@ -250,7 +250,9 @@ SELECT * FROM Log;`,false);
                 ));
     
                 setComponOverlay(overlaysComponents);
+            }
                 setActiveOver(true);
+                
             } catch (error) {
                 console.error("Error fetching overlays:", error);
             }
@@ -351,7 +353,7 @@ SELECT * FROM Log;`,false);
                 console.log('value behind', behind);
                 console.log('values, value:', value);
                 NextDay(behind, total, currDate, value, showRange);
-                Log(total, value, showRange, start_time, end_time, currDate,returnActivity(), returnRank(),returnPercent(),returnDaycent(),returnCustomActivity());
+                Log(total, value, showRange, start_time, end_time, currDate,returnActivity(),returnRank(),returnPercent(),returnDaycent(),returnCustomActivity(),returnColor());
                 setSubmit(false);
             }
             setBehind(null);

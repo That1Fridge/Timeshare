@@ -7,15 +7,16 @@ export async function selectedArray(): Promise<Item[]> {
     // Activity();
     // console.log("selected",selected.current);
     return connectAndQuery(`
-        IF OBJECT_ID('dbo.Activity', 'U') IS NULL
-    BEGIN
+       IF OBJECT_ID('dbo.Activity', 'U') IS NULL
+BEGIN
     CREATE TABLE Activity (
         ActivityName NVARCHAR(255) PRIMARY KEY,
-        Ranking INT NOT NULL UNIQUE,
-        PercentOverall INT NOT NULL UNIQUE,
-        DayPercent INT
+        Ranking INT NOT NULL,
+        PercentOverall INT NOT NULL,
+        DayPercent INT,
+        ColorType NVARCHAR(255)
     );
-    END;
+END;
         SELECT * FROM Activity;`,false).then((result) => {
         // console.log("IN ARRAY", result);
 
@@ -27,5 +28,7 @@ export async function selectedArray(): Promise<Item[]> {
 export type Item = {
   ActivityName: string;
   Ranking: string;
-
+  PercentOverall: string;
+  DayPercent: string;
+  ColorType: string;
 };

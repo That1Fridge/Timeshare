@@ -1,7 +1,7 @@
 import { View, StyleSheet, Dimensions, PixelRatio } from "react-native";
 
 
-export default function Registered(range:number, start_time:number){
+export default function Registered(range:number, start_time:number,color:string){
 
     let fractionRange = range/86400000;
     let fractionStart = 250*(start_time/86400000);
@@ -17,7 +17,7 @@ export default function Registered(range:number, start_time:number){
     const style = StyleSheet.create({
 
         overlay:{
-            backgroundColor:'red',
+            backgroundColor:`${color}`,
             flexDirection: 'column',
             marginRight: '70%',
             marginTop: '-35%',

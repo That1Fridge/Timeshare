@@ -2,6 +2,7 @@ import { AppState } from 'react-native';
 import { connectAndQuery } from './dbconnection';
 import { supabase } from './supabase';
 import { useEffect, useState } from 'react';
+import { toMilliseconds, twentyfourConverter } from './functions/timeConverter';
 
 
 // // Tells Supabase Auth to continuously refresh the session automatically if
@@ -18,15 +19,25 @@ import { useEffect, useState } from 'react';
 
 
 const setActivity = {current:null};
+const setRank = {current:null};
+const setPercent = {current:null};
+const setDaycent = {current:null};
 
-export function Log(total: number,value: number, showRange: boolean, start_time:string ,end_time: string, date:string,activity:string,rank:string,percent:string,daycent:string,customActivity:String) {
-    console.log("CUS ACTIVITY",customActivity);
+
+export function Log(total: number,value: number, showRange: boolean, start_time:string ,end_time: string, date:string,activity:string,rank:string,percent:string,daycent:string,customActivity:String,color:String) {
+    console.log("color type",color);
     if(activity=='custom'){
         setActivity.current = customActivity;
+        setRank.current = rank;
+        setPercent.current = percent;
+        setDaycent.current = daycent;
     }else{
         setActivity.current = activity;
+        
     }
-    
+
+
+ 
     
     connectAndQuery(`  
 IF OBJECT_ID('dbo.Log', 'U') IS NULL
@@ -49,35 +60,41 @@ connectAndQuery(`IF OBJECT_ID('dbo.Activity', 'U') IS NULL
 BEGIN
     CREATE TABLE Activity (
         ActivityName NVARCHAR(255) PRIMARY KEY,
-        Ranking INT NOT NULL UNIQUE,
-        PercentOverall INT NOT NULL UNIQUE,
-        DayPercent INT
+        Ranking INT NOT NULL,
+        PercentOverall INT NOT NULL,
+        DayPercent INT,
+        ColorType NVARCHAR(255)
+
     );
 END;
 IF NOT EXISTS (SELECT 1 FROM Activity WHERE ActivityName = '${setActivity.current}')  
 BEGIN  
-    INSERT INTO Activity (ActivityName, Ranking, PercentOverall, DayPercent)  
-    VALUES ('${setActivity.current}', ${rank}, ${percent}, ${daycent});  
+    INSERT INTO Activity (ActivityName, Ranking, PercentOverall, DayPercent, ColorType)  
+    VALUES ('${setActivity.current}', ${setRank.current}, ${setPercent.current}, ${setDaycent.current}, '${color}');  
 END;
     INSERT INTO Log (total_time, start_time, end_time, daydate,ActivityName) 
     VALUES (${value}, '${start_time}', '${end_time}', '${date}','${setActivity.current}');`,false);
 }else{
+   const time =  new Date().getHours()+ ":" + new Date().getMinutes()+":"+new Date().getSeconds();
+   const milTime = toMilliseconds(  new Date().getHours(),new Date().getMinutes(),new Date().getSeconds());
+   const prevTime = twentyfourConverter(milTime - total); 
     connectAndQuery(`IF OBJECT_ID('dbo.Activity', 'U') IS NULL
 BEGIN
     CREATE TABLE Activity (
         ActivityName NVARCHAR(255) PRIMARY KEY,
-        Ranking INT NOT NULL UNIQUE,
-        PercentOverall INT NOT NULL UNIQUE,
-        DayPercent INT
+        Ranking INT NOT NULL,
+        PercentOverall INT NOT NULL,
+        DayPercent INT,
+        ColorType NVARCHAR(255)
     );
 END;
 IF NOT EXISTS (SELECT 1 FROM Activity WHERE ActivityName = '${setActivity.current}')  
 BEGIN  
-    INSERT INTO Activity (ActivityName, Ranking, PercentOverall, DayPercent)  
-    VALUES ('${setActivity.current}', ${rank}, ${percent}, ${daycent});  
+    INSERT INTO Activity (ActivityName, Ranking, PercentOverall, DayPercent, ColorType)  
+    VALUES ('${setActivity.current}', ${setRank.current}, ${setPercent.current}, ${setDaycent.current}, '${color}');  
 END;
-        INSERT INTO Log (total_time, daydate,ActivityName) 
-    VALUES (${total}, '${date}', '${setActivity.current}');`,false);
+        INSERT INTO Log (total_time, start_time, end_time, daydate,ActivityName) 
+    VALUES (${total},'${prevTime}','${twentyfourConverter(milTime)}','${date}', '${setActivity.current}');`,false);
 
 }
 
@@ -156,9 +173,10 @@ export function Activity(){
 BEGIN
     CREATE TABLE Activity (
         ActivityName NVARCHAR(255) PRIMARY KEY,
-        Ranking INT NOT NULL UNIQUE,
-        PercentOverall INT NOT NULL UNIQUE,
-        DayPercent INT
+        Ranking INT NOT NULL,
+        PercentOverall INT NOT NULL,
+        DayPercent INT,
+        ColorType NVARCHAR(255)
     );
 END;`, false);   
 };

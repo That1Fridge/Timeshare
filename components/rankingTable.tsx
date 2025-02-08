@@ -74,7 +74,7 @@ export default function RankTable() {
     
     });
     
-    }, 1000); // Check for changes every 100ms
+    }, 10000); // Check for changes every 100ms
     
     return () => clearInterval(interval);
               }

@@ -2,6 +2,7 @@ import { View, StyleSheet, Text } from "react-native";
 import { connectAndQuery } from "../dbconnection";
 import { useEffect, useState } from "react";
 import { Item, selectedArray } from "../functions/selectedArray";
+import { color } from "@rneui/themed/dist/config";
 
 const percent = 50;
 
@@ -36,6 +37,8 @@ const percent = 50;
 
 // };
 
+const setpercent = {current:null};
+
 export function DistributionBar(){
     const [activities, setActivities] = useState<any[]>([]); 
     const [componActivity, setComponActivity] = useState<React.ReactNode>(null);
@@ -45,8 +48,22 @@ export function DistributionBar(){
     useEffect(() => {
         if(first){
         selectedArray().then((result) => {
-            const activityComponents = result.map((item: Item) => (
-                <View key={item.Ranking} style={style.disActivity}>
+            const activityComponents = result.map((item: Item,index:number) => (
+                <View key={item.Ranking} style={{ backgroundColor:`${"rgb"+item.ColorType}`,
+                    width:`${100*(parseInt(item.PercentOverall))/100}%`,
+                    height:'100%',
+                    padding:0,
+                    borderColor:`${"rgb"+item.ColorType}`,
+                    borderWidth:1,
+                    borderRadius:10,
+                    justifyContent: 'space-between',
+                    marginLeft: (index===0) ? `${-2 * index}%` : '-2%',
+                    zIndex:1000000-index,
+                    alignItems:'center',
+
+                }}>
+
+                        <Text>{item.ActivityName}</Text>
                     
                 </View> 
             ));
@@ -58,8 +75,23 @@ export function DistributionBar(){
     }else{
         const interval = setInterval(() => {
             selectedArray().then((result) => {
-                const activityComponents = result.map((item: Item) => (
-                    <View key={item.Ranking} style={style.disActivity}>
+                const activityComponents = result.map((item: Item,index:number) => (
+                    <View key={item.Ranking} style={{ backgroundColor:`${"rgb"+item.ColorType}`,
+                        width:`${100*(parseInt(item.PercentOverall))/100}%`,
+                        height:'100%',
+                        padding:0,
+                        borderColor:`${"rgb"+item.ColorType}`,
+                        borderWidth:1,
+                        borderRadius:10,
+                        justifyContent: 'space-between',
+                        marginLeft: (index===0) ? `${-2 * index}%` : '-2%',
+                        zIndex:1000000-index,
+                        alignItems:'center',
+
+
+                    }}>
+    
+                        <Text>{item.ActivityName}</Text>
                         
                     </View> 
                 ));
@@ -102,6 +134,8 @@ const style = StyleSheet.create({
         borderRadius:10,
         height:'2.5%',
         padding:0,
+        flexDirection:'row',
+        
         
     },
     disActivity:{
