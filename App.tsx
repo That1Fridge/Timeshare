@@ -14,6 +14,7 @@ import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { pressed } from './functions/rankingfunctions';
 import { DistributionBar } from './components/overallDistribution';
+import { AllOverlayBars } from './components/TotalOverlays';
 
 
 
@@ -193,65 +194,14 @@ function RankShow(){
         useEffect(() => {
             if (showRange) {
                 console.log("in here now");
-                fetchOverlays();
-                setActiveOver(false);
+                // fetchOverlays();
+                // setActiveOver(false);
+                setActiveOver(true);
 
             }
         
         }, [showRange]);
         
-    
-        async function fetchOverlays() {
-            try {
-                const result = await connectAndQuery(`IF OBJECT_ID('dbo.Log', 'U') IS NULL
-BEGIN
-    CREATE TABLE Log (
-        entryId INT IDENTITY(1,1) PRIMARY KEY,
-        total_time INT NOT NULL,
-        start_time TIME,
-        end_time TIME,
-        daydate DATE NOT NULL,
-        ActivityName NVARCHAR(255) NOT NULL,
-        FOREIGN KEY (daydate) REFERENCES Day(daydate),
-        FOREIGN KEY (ActivityName) REFERENCES Activity(ActivityName)
-        
-    );
-END;
-SELECT L.*, A.ColorType
-FROM Log L
-JOIN Activity A ON L.ActivityName = A.ActivityName;`,false);
-                console.log("RESULT of OVERLAY", result);
-                setOverlays(result);
-                
-
-                if(result!=null){
-                const overlaysComponents = result.map((result, index: number) => (
-                    <View key={index}>
-                        {/* {Registered(overlay.end_time - overlay.start_time, overlay.start_time)} */}
-                        {Registered(toMilliseconds(
-                            result.end_time.substring(11,13),
-                            result.end_time.substring(14,16),
-                            result.end_time.substring(17,22)) - toMilliseconds(
-                                result.start_time.substring(11,13),
-                                result.start_time.substring(14,16),
-                                result.start_time.substring(17,22)), 
-                                toMilliseconds(
-                                    result.start_time.substring(11,13),
-                                    result.start_time.substring(14,16),
-                                    result.start_time.substring(17,22)),
-                                    ("rgb"+result.ColorType)
-                                )}
-                    </View>
-                ));
-    
-                setComponOverlay(overlaysComponents);
-            }
-                setActiveOver(true);
-                
-            } catch (error) {
-                console.error("Error fetching overlays:", error);
-            }
-        }
 
         
 
@@ -264,8 +214,9 @@ JOIN Activity A ON L.ActivityName = A.ActivityName;`,false);
                     <View style={style.Range}>
                         {Range()}
                     </View>
-                    {activeOver&&componOverlay}
+                    {/* {activeOver&&componOverlay} */}
                     {/* <AllOverlaysComponent overlays={overlays} /> */}
+                    <AllOverlayBars/>
                     <Button title="Submit" onPress={() => (Submit())} />
                 </View>
                 {/* <ActivityEnter /> */}
