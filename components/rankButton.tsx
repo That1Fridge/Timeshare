@@ -8,6 +8,8 @@ import { GestureHandlerRootView, TextInput } from "react-native-gesture-handler"
 import { pressed, setPressed } from "../functions/rankingfunctions";
 import { Activity } from "../dbservice";
 import { connectAndQuery } from "../dbconnection";
+import { Item, selectedArray } from "../functions/selectedArray";
+import { ArrayOrder } from "../functions/order";
 
 
 
@@ -60,166 +62,12 @@ export function returnValuesRank(){
 
 
 
-
-
-// export function dropDown(){
-// //     const [selectedValue, setSelectedValue] = useState("option1");
-// //     const NUM_ITEMS = 10;
-// // function getColor(i: number) {
-// //   const multiplier = 255 / (NUM_ITEMS - 1);
-// //   const colorVal = i * multiplier;
-// //   return `rgb(${colorVal}, ${Math.abs(128 - colorVal)}, ${255 - colorVal})`;
-// // }
-
-// // type Item = {
-// //   key: string;
-// //   label: string;
-// //   height: number;
-// //   width: number;
-// //   backgroundColor: string;
-// // };
-// //     const initialData: Item[] = [...Array(NUM_ITEMS)].map((d, index) => {
-// //         const backgroundColor = getColor(index);
-// //         return {
-// //           key: `item-${index}`,
-// //           label: String(index) + "",
-// //           height: 100,
-// //           width: 60 + Math.random() * 40,
-// //           backgroundColor,
-// //         };
-// //       });
-// //     const [data1, setData1] = useState<Item[]>(initialData);
-// //     const [data2, setData2] = useState<Item[]>(initialData);
-// //     const [data3, setData3] = useState<Item[]>(initialData);
-// //     const [data, setData] = useState(initialData);
-
-// //     const renderItem = ({ item, drag, isActive }: RenderItemParams<Item>) => {
-// //         return (
-// //           <ScaleDecorator>
-// //             <TouchableOpacity
-// //               onLongPress={drag}
-// //               disabled={isActive}
-// //               style={[
-// //                 style.rowItem,
-// //                 { backgroundColor: isActive ? "red" : item.backgroundColor },
-// //               ]}
-// //             >
-// //               <Text style={style.text}>{item.label}</Text>
-// //             </TouchableOpacity>
-// //           </ScaleDecorator>
-// //         );
-// //       };
-    
-
-// //     function keyExtractor(item: Item, index: number): string {
-// //         if(item[0] == data1){
-// //             return "1";
-// //         }
-// //         if(item[0] ==data2){
-// //             return "2";
-// //         }
-// //         if(item[0] ==data3){
-// //             return "3";
-// //         }
-// //     }
-
-//     const OPTIONS = [
-//       { id: "1", label: "Option 1" },
-//       { id: "2", label: "Option 2" },
-//       { id: "3", label: "Option 3" },
-//       { id: "4", label: "Option 4" },
-//     ];
-//     const [data, setData] = useState(OPTIONS);
-
-//     return (   
-//     // <NestableScrollContainer>
-//     //     {/* <Header centerComponent={{ text: 'List 1', style: { color: '#fff' } }} /> */}
-//     //     <NestableDraggableFlatList
-//     //       data={data1}
-//     //       renderItem={renderItem}
-//     //       keyExtractor={keyExtractor}
-//     //       onDragEnd={({ data }) => setData1(data)}
-//     //     />
-//     //     {/* <Header centerComponent={{ text: 'List 2', style: { color: '#fff' } }} /> */}
-//     //     <NestableDraggableFlatList
-//     //       data={data2}
-//     //       renderItem={renderItem}
-//     //       keyExtractor={keyExtractor}
-//     //       onDragEnd={({ data }) => setData2(data)}
-//     //     />
-//     //     {/* <Header centerComponent={{ text: 'List 3', style: { color: '#fff' } }} />
-//     //     <NestableDraggableFlatList
-//     //       data={data3}
-//     //       renderItem={renderItem}
-//     //       keyExtractor={keyExtractor}
-//     //       onDragEnd={({ data }) => setData3(data)}
-//     //     /> */}
-//     //   </NestableScrollContainer>
-//     <View style={style.container}>
-//     <DraggableFlatList
-//       data={data}
-//       keyExtractor={(item) => item.id}
-//       renderItem={({ item, drag, isActive }) => (
-//         <View
-//           style={[style.item, isActive && style.activeItem]}
-//           onLongPress={drag}
-//         >
-//           <Text style={style.text}>{item.label}</Text>
-//         </View>
-//       )}
-//       onDragEnd={({ data }) => setData(data)}
-//     />
-//   </View>
-// );
-
-  
-// }
-
-
-// export function pressed (){
-//   const isReturn = returnValuesRank().isReturn;
-//   console.log("retunner", isReturn);
-
-//   return isReturn;
-// };
-
-
 const OPTIONS = [
   { id: "1", label: "Option 1" },
 
 ];
 
-// const OPTIONS = useSelectedArray();
-const selected = {current:null};
 
-export async function selectedArray(): Promise<Item[]> {
-    // const [selected, setSelected] = useState(null)
-    Activity();
-    // console.log("selected",selected.current);
-    return connectAndQuery(`
-    IF OBJECT_ID('dbo.Activity', 'U') IS NULL
-BEGIN
-    CREATE TABLE Activity (
-        ActivityName NVARCHAR(255) PRIMARY KEY,
-        Ranking INT NOT NULL,
-        PercentOverall INT NOT NULL,
-        DayPercent INT,
-        ColorType NVARCHAR(255)
-    );
-END;
-        SELECT * FROM Activity;`,true).then((result) => {
-        // console.log("IN ARRAY", result);
-
-        selected.current = result;
-        return result;
-    });
-}
-
-type Item = {
-  ActivityName: string;
-  Ranking: string;
-
-};
 
 const string = {current:null};
 
@@ -244,7 +92,9 @@ export function DraggableList (){
           if(first){
             selectedArray().then((result) => {
               console.log("waiting");
-              setData(result);
+              //ORDER HEREE
+              setData(ArrayOrder(result));
+              // setData(result);
               // console.log("IN result", result);
           
           })

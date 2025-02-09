@@ -3,6 +3,7 @@ import { Activity } from "../dbservice";
 import { connectAndQuery } from "../dbconnection";
 import { useEffect, useState } from "react";
 import { Item, selectedArray } from "../functions/selectedArray";
+import { ArrayOrder } from "../functions/order";
 
 
 // const OPTIONS = useSelectedArray();
@@ -59,7 +60,7 @@ export default function RankTable() {
             if(first){
                 selectedArray().then((result) => {
                   console.log("waiting");
-                  setData(result);
+                  setData(ArrayOrder(result));
                   setFirst(false);
                   console.log("IN result", result);
               
@@ -69,7 +70,7 @@ export default function RankTable() {
                 const interval = setInterval(() => {
       selectedArray().then((result) => {
 
-        setData(result);
+        setData(ArrayOrder(result));
         console.log("IN result data", result);
     
     });
